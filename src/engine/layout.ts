@@ -262,14 +262,16 @@ export function computePedigreeLayout(tree: FamilyTreeData): LayoutResult {
         const childXs = childDrops.map((d) => d.topX);
         const minChildDropX = Math.min(...childXs);
         const maxChildDropX = Math.max(...childXs);
+        const barStartX = Math.min(minChildDropX, marriageLine.midX);
+        const barEndX = Math.max(maxChildDropX, marriageLine.midX);
 
         branches.push({
           unionId: union.id,
           stemStartX: marriageLine.midX,
           stemStartY: marriageLine.midY,
           stemEndY: marriageLine.midY + 45,
-          barStartX: minChildDropX,
-          barEndX: maxChildDropX,
+          barStartX,
+          barEndX,
           childDrops,
         });
       }

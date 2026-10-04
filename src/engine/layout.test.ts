@@ -174,4 +174,43 @@ describe('computePedigreeLayout', () => {
       }
     });
   });
+
+  it('guarantees sibling bar connects stemStartX and all child drops seamlessly without disconnections', () => {
+    // Tree where children may be right-shifted or uneven
+    const shiftedTree: FamilyTreeData = {
+      version: '1.0',
+      title: 'Shifted Tree',
+      rootPersonId: 'p1',
+      persons: {
+        p1: { id: 'p1', name: 'Father 1', gender: 'male' },
+        p2: { id: 'p2', name: 'Mother 1', gender: 'female' },
+        c1: { id: 'c1', name: 'Child 1', gender: 'male' },
+        c2: { id: 'c2', name: 'Child 2', gender: 'female' },
+        c3: { id: 'c3', name: 'Child 3', gender: 'male' },
+      },
+      unions: {
+        u1: {
+          id: 'u1',
+          partner1Id: 'p1',
+          partner2Id: 'p2',
+          childrenIds: ['c1', 'c2', 'c3'],
+        },
+      },
+    };
+
+    const layout = computePedigreeLayout(shiftedTree);
+
+    expect(layout.branches.length).toBeGreaterThan(0);
+    layout.branches.forEach(branch => {
+      // Sibling bar must encompass stem drop point
+      expect(branch.barStartX).toBeLessThanOrEqual(branch.stemStartX);
+      expect(branch.barEndX).toBeGreaterThanOrEqual(branch.stemStartX);
+
+      // Sibling bar must encompass all child drops
+      branch.childDrops.forEach(drop => {
+        expect(branch.barStartX).toBeLessThanOrEqual(drop.topX);
+        expect(branch.barEndX).toBeGreaterThanOrEqual(drop.topX);
+      });
+    });
+  });
 });
