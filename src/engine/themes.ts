@@ -104,140 +104,7 @@ export interface SvgBounds {
   height: number;
 }
 
-/**
- * Calculates or extracts bounding dimensions of the SVG tree content.
- * Supports SVGSVGElement as well as serialized SVG strings.
- */
-export function calculateSvgContentBounds(svg: SVGSVGElement | string): SvgBounds {
-  const isString = typeof svg === 'string';
-  const rawSvg = isString
-    ? svg
-    : (svg as any).outerHTML || (svg as any).innerHTML || '';
-
-  // 1. Check explicit data-bounds attributes
-  if (
-    !isString &&
-    typeof (svg as any).hasAttribute === 'function' &&
-    (svg as any).hasAttribute('data-bounds-min-x') &&
-    (svg as any).hasAttribute('data-bounds-width')
-  ) {
-    const minX = parseFloat((svg as any).getAttribute('data-bounds-min-x') || '0');
-    const minY = parseFloat((svg as any).getAttribute('data-bounds-min-y') || '0');
-    const width = parseFloat((svg as any).getAttribute('data-bounds-width') || '800');
-    const height = parseFloat((svg as any).getAttribute('data-bounds-height') || '500');
-    const maxX = (svg as any).hasAttribute('data-bounds-max-x')
-      ? parseFloat((svg as any).getAttribute('data-bounds-max-x') || '800')
-      : minX + width;
-    const maxY = (svg as any).hasAttribute('data-bounds-max-y')
-      ? parseFloat((svg as any).getAttribute('data-bounds-max-y') || '500')
-      : minY + height;
-    return { minX, maxX, minY, maxY, width, height };
-  }
-
-  const minXMatch = rawSvg.match(/data-bounds-min-x="([^"]+)"/);
-  const widthMatch = rawSvg.match(/data-bounds-width="([^"]+)"/);
-  const minYMatch = rawSvg.match(/data-bounds-min-y="([^"]+)"/);
-  const heightMatch = rawSvg.match(/data-bounds-height="([^"]+)"/);
-
-  if (minXMatch && widthMatch) {
-    const minX = parseFloat(minXMatch[1]);
-    const width = parseFloat(widthMatch[1]);
-    const minY = minYMatch ? parseFloat(minYMatch[1]) : 0;
-    const height = heightMatch ? parseFloat(heightMatch[1]) : 500;
-    return { minX, maxX: minX + width, minY, maxY: minY + height, width, height };
-  }
-
-  // 2. Scan child element coordinates in case data attributes are not attached
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-
-  const rectRegex = /<rect\b([^>]+)>/gi;
-  let rMatch: RegExpExecArray | null;
-  while ((rMatch = rectRegex.exec(rawSvg)) !== null) {
-    const attrs = rMatch[1];
-    if (
-      attrs.includes('selected-halo') ||
-      attrs.includes('canvas-grid-dots') ||
-      attrs.includes('export-decorative-border')
-    ) {
-      continue;
-    }
-    const xM = attrs.match(/\bx="([^"]+)"/);
-    const yM = attrs.match(/\by="([^"]+)"/);
-    const wM = attrs.match(/\bwidth="([^"]+)"/);
-    const hM = attrs.match(/\bheight="([^"]+)"/);
-    if (xM && yM && wM && hM) {
-      const x = parseFloat(xM[1]);
-      const y = parseFloat(yM[1]);
-      const w = parseFloat(wM[1]);
-      const h = parseFloat(hM[1]);
-      if (!isNaN(x) && !isNaN(y) && !isNaN(w) && !isNaN(h) && w > 0 && h > 0 && w < 4000) {
-        minX = Math.min(minX, x);
-        maxX = Math.max(maxX, x + w);
-        minY = Math.min(minY, y);
-        maxY = Math.max(maxY, y + h);
-      }
-    }
-  }
-
-  const circleRegex = /<circle\b([^>]+)>/gi;
-  let cMatch: RegExpExecArray | null;
-  while ((cMatch = circleRegex.exec(rawSvg)) !== null) {
-    const attrs = cMatch[1];
-    if (attrs.includes('selected-halo')) continue;
-    const cxM = attrs.match(/\bcx="([^"]+)"/);
-    const cyM = attrs.match(/\bcy="([^"]+)"/);
-    const rM = attrs.match(/\br="([^"]+)"/);
-    if (cxM && cyM && rM) {
-      const cx = parseFloat(cxM[1]);
-      const cy = parseFloat(cyM[1]);
-      const r = parseFloat(rM[1]);
-      if (!isNaN(cx) && !isNaN(cy) && !isNaN(r) && r > 0 && r < 1000) {
-        minX = Math.min(minX, cx - r);
-        maxX = Math.max(maxX, cx + r);
-        minY = Math.min(minY, cy - r);
-        maxY = Math.max(maxY, cy + r);
-      }
-    }
-  }
-
-  const lineRegex = /<line\b([^>]+)>/gi;
-  let lMatch: RegExpExecArray | null;
-  while ((lMatch = lineRegex.exec(rawSvg)) !== null) {
-    const attrs = lMatch[1];
-    const x1M = attrs.match(/\bx1="([^"]+)"/);
-    const y1M = attrs.match(/\by1="([^"]+)"/);
-    const x2M = attrs.match(/\bx2="([^"]+)"/);
-    const y2M = attrs.match(/\by2="([^"]+)"/);
-    if (x1M && y1M && x2M && y2M) {
-      const x1 = parseFloat(x1M[1]);
-      const y1 = parseFloat(y1M[1]);
-      const x2 = parseFloat(x2M[1]);
-      const y2 = parseFloat(y2M[1]);
-      if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
-        minX = Math.min(minX, x1, x2);
-        maxX = Math.max(maxX, x1, x2);
-        minY = Math.min(minY, y1, y2);
-        maxY = Math.max(maxY, y1, y2);
-      }
-    }
-  }
-
-  if (minX === Infinity || maxX === -Infinity || minY === Infinity || maxY === -Infinity) {
-    return { minX: 0, maxX: 800, minY: 0, maxY: 500, width: 800, height: 500 };
-  }
-
-  // Extra padding for person label text
-  maxY += 40;
-
-  const width = Math.max(maxX - minX, 100);
-  const height = Math.max(maxY - minY, 100);
-  return { minX, maxX, minY, maxY, width, height };
-}
-
-function escapeXml(str?: string): string {
+export function escapeXml(str?: string): string {
   if (!str) return '';
   return str
     .replace(/&/g, '&amp;')
@@ -245,6 +112,385 @@ function escapeXml(str?: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+export function unescapeXml(str: string): string {
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
+}
+
+/**
+ * Lightweight, robust SVG DOM Node implementation supporting CSS queries,
+ * attribute manipulation, subtree removals, and XML serialization across both
+ * browser and Node environments.
+ */
+export class SvgDomNode {
+  tagName: string;
+  attributes: Record<string, string> = {};
+  children: SvgDomNode[] = [];
+  parentNode: SvgDomNode | null = null;
+  textContent: string = '';
+
+  constructor(tagName: string) {
+    this.tagName = tagName;
+  }
+
+  getAttribute(name: string): string | null {
+    return this.attributes[name] ?? null;
+  }
+
+  setAttribute(name: string, value: string): void {
+    this.attributes[name] = String(value);
+  }
+
+  hasAttribute(name: string): boolean {
+    return name in this.attributes;
+  }
+
+  removeAttribute(name: string): void {
+    delete this.attributes[name];
+  }
+
+  remove(): void {
+    if (this.parentNode) {
+      const idx = this.parentNode.children.indexOf(this);
+      if (idx !== -1) {
+        this.parentNode.children.splice(idx, 1);
+      }
+      this.parentNode = null;
+    }
+  }
+
+  appendChild(child: SvgDomNode): void {
+    child.remove();
+    child.parentNode = this;
+    this.children.push(child);
+  }
+
+  insertBefore(newChild: SvgDomNode, refChild: SvgDomNode | null): void {
+    newChild.remove();
+    newChild.parentNode = this;
+    if (!refChild) {
+      this.children.push(newChild);
+      return;
+    }
+    const idx = this.children.indexOf(refChild);
+    if (idx === -1) {
+      this.children.push(newChild);
+    } else {
+      this.children.splice(idx, 0, newChild);
+    }
+  }
+
+  cloneNode(deep = true): SvgDomNode {
+    const clone = new SvgDomNode(this.tagName);
+    clone.attributes = { ...this.attributes };
+    clone.textContent = this.textContent;
+    if (deep) {
+      for (const child of this.children) {
+        clone.appendChild(child.cloneNode(true));
+      }
+    }
+    return clone;
+  }
+
+  matches(compoundSelector: string): boolean {
+    const sel = compoundSelector.trim();
+    if (!sel || sel === '*') return true;
+
+    // Attribute selectors like [attr="val"] or [attr^="val"] or [attr]
+    const attrRegex = /\[([a-zA-Z0-9_-]+)(?:(\^?=)"([^"]*)")?\]/g;
+    let attrMatch: RegExpExecArray | null;
+    let stripped = sel;
+
+    while ((attrMatch = attrRegex.exec(sel)) !== null) {
+      stripped = stripped.replace(attrMatch[0], '');
+      const attrName = attrMatch[1];
+      const op = attrMatch[2];
+      const attrVal = attrMatch[3];
+      const currentVal = this.getAttribute(attrName);
+      if (currentVal === null) return false;
+      if (op === '=') {
+        if (currentVal !== attrVal) return false;
+      } else if (op === '^=') {
+        if (!currentVal.startsWith(attrVal)) return false;
+      }
+    }
+
+    // Class selectors like .class-name
+    const classRegex = /\.([a-zA-Z0-9_-]+)/g;
+    let classMatch: RegExpExecArray | null;
+    while ((classMatch = classRegex.exec(stripped)) !== null) {
+      stripped = stripped.replace(classMatch[0], '');
+      const className = classMatch[1];
+      const elemClass = this.getAttribute('class') || '';
+      const classes = elemClass.split(/\s+/);
+      if (!classes.includes(className)) return false;
+    }
+
+    // Tag name match
+    const tag = stripped.trim();
+    if (tag && tag.toLowerCase() !== this.tagName.toLowerCase()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  matchesPath(parts: string[]): boolean {
+    if (parts.length === 0) return false;
+    const target = parts[parts.length - 1];
+    if (!this.matches(target)) return false;
+    if (parts.length === 1) return true;
+
+    let currentAncestor: SvgDomNode | null = this.parentNode;
+    let partIdx = parts.length - 2;
+
+    while (currentAncestor && partIdx >= 0) {
+      if (currentAncestor.matches(parts[partIdx])) {
+        partIdx--;
+      }
+      currentAncestor = currentAncestor.parentNode;
+    }
+
+    return partIdx < 0;
+  }
+
+  querySelector(selector: string): SvgDomNode | null {
+    const list = this.querySelectorAll(selector);
+    return list.length > 0 ? list[0] : null;
+  }
+
+  querySelectorAll(selector: string): SvgDomNode[] {
+    const results: SvgDomNode[] = [];
+    const selectors = selector
+      .split(',')
+      .map((s) => s.trim().split(/\s+/).filter(Boolean));
+
+    const traverse = (node: SvgDomNode) => {
+      for (const selParts of selectors) {
+        if (node.matchesPath(selParts)) {
+          results.push(node);
+          break;
+        }
+      }
+      for (const child of node.children) {
+        traverse(child);
+      }
+    };
+
+    for (const child of this.children) {
+      traverse(child);
+    }
+
+    return results;
+  }
+
+  toString(): string {
+    const attrs = Object.entries(this.attributes)
+      .map(([k, v]) => `${k}="${escapeXml(v)}"`)
+      .join(' ');
+    const attrStr = attrs ? ` ${attrs}` : '';
+
+    if (this.children.length === 0 && !this.textContent) {
+      const voidTags = ['line', 'rect', 'circle', 'path', 'polygon', 'ellipse'];
+      if (voidTags.includes(this.tagName.toLowerCase())) {
+        return `<${this.tagName}${attrStr} />`;
+      }
+      return `<${this.tagName}${attrStr}></${this.tagName}>`;
+    }
+
+    let inner = '';
+    if (this.textContent) {
+      inner += this.textContent;
+    }
+    for (const child of this.children) {
+      inner += child.toString();
+    }
+
+    return `<${this.tagName}${attrStr}>${inner}</${this.tagName}>`;
+  }
+}
+
+/**
+ * Parses SVG XML into an SvgDomNode tree.
+ */
+export function parseSvgXml(xmlString: string): SvgDomNode {
+  let xml = xmlString
+    .replace(/<\?xml[\s\S]*?\?>/gi, '')
+    .replace(/<!DOCTYPE[\s\S]*?>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .trim();
+
+  const dummyRoot = new SvgDomNode('root');
+  let current: SvgDomNode = dummyRoot;
+
+  const tagRegex =
+    /<style\b[^>]*>([\s\S]*?)<\/style>|<(\/?)([a-zA-Z0-9:_-]+)([^>]*?)(\/?)>|([^<]+)/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = tagRegex.exec(xml)) !== null) {
+    const [fullMatch, styleContent, isClosing, tagName, attrString, isSelfClosing, textContent] =
+      match;
+
+    if (styleContent !== undefined) {
+      const styleNode = new SvgDomNode('style');
+      styleNode.textContent = styleContent;
+      current.appendChild(styleNode);
+      continue;
+    }
+
+    if (textContent !== undefined) {
+      const trimmed = textContent.trim();
+      if (trimmed) {
+        current.textContent =
+          (current.textContent ? current.textContent + ' ' : '') + unescapeXml(trimmed);
+      }
+      continue;
+    }
+
+    if (isClosing) {
+      if (current.parentNode) {
+        current = current.parentNode;
+      }
+      continue;
+    }
+
+    const node = new SvgDomNode(tagName);
+
+    if (attrString) {
+      const attrRegex =
+        /([a-zA-Z0-9:_-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g;
+      let aMatch: RegExpExecArray | null;
+      while ((aMatch = attrRegex.exec(attrString)) !== null) {
+        const attrName = aMatch[1];
+        const attrVal = aMatch[2] ?? aMatch[3] ?? aMatch[4] ?? '';
+        node.setAttribute(attrName, unescapeXml(attrVal));
+      }
+    }
+
+    current.appendChild(node);
+
+    const isVoid =
+      isSelfClosing === '/' ||
+      (['line', 'rect', 'circle', 'path', 'polygon', 'ellipse'].includes(
+        tagName.toLowerCase()
+      ) &&
+        fullMatch.endsWith('/>'));
+
+    if (!isVoid) {
+      current = node;
+    }
+  }
+
+  const svgNode =
+    dummyRoot.children.find((c) => c.tagName.toLowerCase() === 'svg') ||
+    dummyRoot.children[0];
+
+  return svgNode || dummyRoot;
+}
+
+/**
+ * Calculates or extracts bounding dimensions of the SVG tree content.
+ */
+export function calculateSvgContentBounds(
+  svgInput: SVGSVGElement | SvgDomNode | string
+): SvgBounds {
+  let rootNode: SvgDomNode;
+
+  if (typeof svgInput === 'string') {
+    rootNode = parseSvgXml(svgInput);
+  } else if (svgInput instanceof SvgDomNode) {
+    rootNode = svgInput;
+  } else {
+    const raw =
+      (svgInput as any).outerHTML ||
+      (svgInput as any).innerHTML ||
+      '';
+    rootNode = parseSvgXml(raw);
+  }
+
+  // 1. Check explicit data-bounds attributes
+  if (rootNode.hasAttribute('data-bounds-min-x') && rootNode.hasAttribute('data-bounds-width')) {
+    const minX = parseFloat(rootNode.getAttribute('data-bounds-min-x') || '0');
+    const minY = parseFloat(rootNode.getAttribute('data-bounds-min-y') || '0');
+    const width = parseFloat(rootNode.getAttribute('data-bounds-width') || '800');
+    const height = parseFloat(rootNode.getAttribute('data-bounds-height') || '500');
+    const maxX = rootNode.hasAttribute('data-bounds-max-x')
+      ? parseFloat(rootNode.getAttribute('data-bounds-max-x') || '800')
+      : minX + width;
+    const maxY = rootNode.hasAttribute('data-bounds-max-y')
+      ? parseFloat(rootNode.getAttribute('data-bounds-max-y') || '500')
+      : minY + height;
+    return { minX, maxX, minY, maxY, width, height };
+  }
+
+  // 2. Scan child elements
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  const elements = rootNode.querySelectorAll('rect, circle, line');
+  elements.forEach((el) => {
+    const testId = el.getAttribute('data-testid') || '';
+    if (
+      testId === 'selected-halo' ||
+      testId === 'quick-action-toolbar' ||
+      el.getAttribute('fill')?.includes('canvas-grid-dots') ||
+      testId === 'export-decorative-border'
+    ) {
+      return;
+    }
+
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'rect') {
+      const x = parseFloat(el.getAttribute('x') || '0');
+      const y = parseFloat(el.getAttribute('y') || '0');
+      const w = parseFloat(el.getAttribute('width') || '0');
+      const h = parseFloat(el.getAttribute('height') || '0');
+      if (w > 0 && h > 0 && w < 4000) {
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x + w);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y + h);
+      }
+    } else if (tag === 'circle') {
+      const cx = parseFloat(el.getAttribute('cx') || '0');
+      const cy = parseFloat(el.getAttribute('cy') || '0');
+      const r = parseFloat(el.getAttribute('r') || '0');
+      if (r > 0 && r < 1000) {
+        minX = Math.min(minX, cx - r);
+        maxX = Math.max(maxX, cx + r);
+        minY = Math.min(minY, cy - r);
+        maxY = Math.max(maxY, cy + r);
+      }
+    } else if (tag === 'line') {
+      const x1 = parseFloat(el.getAttribute('x1') || '0');
+      const y1 = parseFloat(el.getAttribute('y1') || '0');
+      const x2 = parseFloat(el.getAttribute('x2') || '0');
+      const y2 = parseFloat(el.getAttribute('y2') || '0');
+      if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+        minX = Math.min(minX, x1, x2);
+        maxX = Math.max(maxX, x1, x2);
+        minY = Math.min(minY, y1, y2);
+        maxY = Math.max(maxY, y1, y2);
+      }
+    }
+  });
+
+  if (minX === Infinity || maxX === -Infinity || minY === Infinity || maxY === -Infinity) {
+    return { minX: 0, maxX: 800, minY: 0, maxY: 500, width: 800, height: 500 };
+  }
+
+  maxY += 40; // Label clearance
+  const width = Math.max(maxX - minX, 100);
+  const height = Math.max(maxY - minY, 100);
+  return { minX, maxX, minY, maxY, width, height };
 }
 
 /**
@@ -423,6 +669,7 @@ function createTitleBannerElement(
 
 /**
  * Creates standard Pedigree Legend (Male Square, Female Circle, Marriage double-line, Deceased slash).
+ * Positioned safely inside the bottom decorative frame.
  */
 function createLegendElement(
   totalWidth: number,
@@ -485,290 +732,263 @@ function createLegendElement(
 /**
  * Transforms an SVG family tree element into a self-contained, aesthetic,
  * standalone SVG string styled with the chosen visual theme tokens.
+ * Uses atomic DOM manipulation for reliable recoloring, element stripping,
+ * and layout generation.
  */
 export function applyThemeToSvg(
-  svgInput: SVGSVGElement | string,
+  svgInput: SVGSVGElement | SvgDomNode | string,
   theme: ThemeConfig,
   options: ExportOptions
 ): string {
-  let svgString =
-    typeof svgInput === 'string'
-      ? svgInput
-      : (svgInput as any).outerHTML ||
-        ((svgInput as any).innerHTML ? `<svg>${(svgInput as any).innerHTML}</svg>` : '');
-
-  // 1. Remove interactive UI controls and highlights
-  svgString = svgString.replace(
-    /<rect\b[^>]*\bdata-testid="selected-halo"[^>]*\/?>/gi,
-    ''
-  );
-  svgString = svgString.replace(
-    /<circle\b[^>]*\bdata-testid="selected-halo"[^>]*\/?>/gi,
-    ''
-  );
-  svgString = svgString.replace(
-    /<g\b[^>]*\bdata-testid="quick-action-toolbar"[\s\S]*?<\/g>/gi,
-    ''
-  );
-  svgString = svgString.replace(
-    /<g\b[^>]*\bclass="[^"]*quick-action-toolbar[^"]*"[\s\S]*?<\/g>/gi,
-    ''
-  );
-  svgString = svgString.replace(
-    /<div\b[^>]*\bdata-testid="floating-controls"[\s\S]*?<\/div>/gi,
-    ''
-  );
-
-  // 2. Generation ruler inclusion/exclusion
-  if (!options.includeGenerations) {
-    svgString = svgString.replace(
-      /<g\b[^>]*\bdata-testid="generation-ruler"[\s\S]*?<\/g>/gi,
-      ''
-    );
-    svgString = svgString.replace(
-      /<g\b[^>]*\bclass="[^"]*generation-ruler[^"]*"[\s\S]*?<\/g>/gi,
-      ''
-    );
+  // Convert input into a working SvgDomNode tree
+  let root: SvgDomNode;
+  if (typeof svgInput === 'string') {
+    root = parseSvgXml(svgInput);
+  } else if (svgInput instanceof SvgDomNode) {
+    root = svgInput.cloneNode(true);
   } else {
-    // Style generation guide lines and text
-    svgString = svgString.replace(
-      /(<g\b[^>]*\bdata-testid="generation-ruler"[\s\S]*?<\/g>)/gi,
-      (genBlock: string) => {
-        let updated = genBlock.replace(
-          /(<line\b[^>]*?\bstroke=")[^"]*(")/gi,
-          `$1${theme.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'}$2`
-        );
-        updated = updated.replace(
-          /(<text\b[^>]*?\bfill=")[^"]*(")/gi,
-          `$1${theme.textSecondary}$2`
-        );
-        return updated;
-      }
-    );
+    const raw =
+      (svgInput as any).outerHTML ||
+      (svgInput as any).innerHTML ||
+      '';
+    root = parseSvgXml(raw);
   }
 
-  // 3. Apply theme styling to node shapes
-  // Male shapes
-  svgString = svgString.replace(
-    /(<rect\b[^>]*\bdata-gender="male"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bfill="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bfill="[^"]*"/, `fill="${theme.nodeMaleFill}"`);
-      } else {
-        updated += ` fill="${theme.nodeMaleFill}"`;
+  // 1. Strip all <foreignObject> elements (QuickActionToolbar) and interactive artifacts
+  const foreignObjects = root.querySelectorAll(
+    'foreignObject, [data-testid="quick-action-toolbar-foreign-object"], [data-testid="quick-action-toolbar"], .quick-action-toolbar'
+  );
+  foreignObjects.forEach((el) => el.remove());
+
+  const halos = root.querySelectorAll(
+    '[data-testid="selected-halo"], .selected-halo'
+  );
+  halos.forEach((el) => el.remove());
+
+  const floatingControls = root.querySelectorAll(
+    '[data-testid="floating-controls"], .floating-controls'
+  );
+  floatingControls.forEach((el) => el.remove());
+
+  // 2. Generation Ruler: Atomic removal of ruler tree, or thematic recoloring
+  if (!options.includeGenerations) {
+    const rulers = root.querySelectorAll(
+      '[data-testid="generation-ruler"], .generation-ruler'
+    );
+    rulers.forEach((r) => r.remove());
+  } else {
+    const genLines = root.querySelectorAll(
+      '[data-testid="generation-ruler"] line, .generation-ruler line'
+    );
+    genLines.forEach((line) => {
+      line.setAttribute(
+        'stroke',
+        theme.isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)'
+      );
+    });
+
+    const genTexts = root.querySelectorAll(
+      '[data-testid="generation-ruler"] text, .generation-ruler text'
+    );
+    genTexts.forEach((text) => {
+      text.setAttribute('fill', theme.textSecondary);
+      if (theme.fontFamily) {
+        text.setAttribute('font-family', theme.fontFamily);
       }
-      if (/\bstroke="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bstroke="[^"]*"/, `stroke="${theme.nodeMaleStroke}"`);
-      } else {
-        updated += ` stroke="${theme.nodeMaleStroke}"`;
-      }
-      return updated + p2;
+    });
+  }
+
+  // 3. Marriage Lines & Connection Knots
+  // Matches lines inside .marriage-lines, [data-testid^="marriage-line-"], and .marriage-line
+  const marriageLines = root.querySelectorAll(
+    '.marriage-lines line, [data-testid^="marriage-line-"] line, .marriage-line line'
+  );
+  marriageLines.forEach((line) => {
+    line.setAttribute('stroke', theme.marriageStroke);
+  });
+
+  const marriageCircles = root.querySelectorAll(
+    '.marriage-lines circle, [data-testid^="marriage-line-"] circle, .marriage-line circle'
+  );
+  marriageCircles.forEach((circle) => {
+    circle.setAttribute('stroke', theme.marriageStroke);
+    circle.setAttribute('fill', theme.marriageStroke);
+  });
+
+  // 4. Sibling Branch Lines & Drops
+  // Matches lines inside .sibling-branches, [data-testid^="sibling-branch-"], [data-testid^="branch-"], .sibling-branch
+  const siblingLines = root.querySelectorAll(
+    '.sibling-branches line, [data-testid^="sibling-branch-"] line, [data-testid^="branch-"] line, .sibling-branch line, [data-testid^="stem-"], [data-testid^="bar-"], [data-testid^="drop-"] line'
+  );
+  siblingLines.forEach((line) => {
+    line.setAttribute('stroke', theme.siblingStroke);
+  });
+
+  const siblingDots = root.querySelectorAll(
+    '.sibling-branches circle, [data-testid^="sibling-branch-"] circle, [data-testid^="branch-"] circle, .sibling-branch circle'
+  );
+  siblingDots.forEach((dot) => {
+    dot.setAttribute('fill', theme.siblingStroke);
+  });
+
+  // 5. Male & Female Pedigree Node Shapes
+  const maleShapes = root.querySelectorAll(
+    '[data-gender="male"], rect[data-testid="node-shape"][data-gender="male"]'
+  );
+  maleShapes.forEach((shape) => {
+    shape.setAttribute('fill', theme.nodeMaleFill);
+    shape.setAttribute('stroke', theme.nodeMaleStroke);
+  });
+
+  const femaleShapes = root.querySelectorAll(
+    '[data-gender="female"], circle[data-testid="node-shape"][data-gender="female"]'
+  );
+  femaleShapes.forEach((shape) => {
+    shape.setAttribute('fill', theme.nodeFemaleFill);
+    shape.setAttribute('stroke', theme.nodeFemaleStroke);
+  });
+
+  // 6. Node Typography & Pills
+  const initialsTexts = root.querySelectorAll('[data-testid="person-initials"]');
+  initialsTexts.forEach((text) => {
+    text.setAttribute('fill', theme.isDark ? '#FFFFFF' : theme.textPrimary);
+    if (theme.fontFamily) {
+      text.setAttribute('font-family', theme.fontFamily);
     }
-  );
+  });
 
-  // Female shapes
-  svgString = svgString.replace(
-    /(<circle\b[^>]*\bdata-gender="female"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bfill="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bfill="[^"]*"/, `fill="${theme.nodeFemaleFill}"`);
-      } else {
-        updated += ` fill="${theme.nodeFemaleFill}"`;
-      }
-      if (/\bstroke="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bstroke="[^"]*"/, `stroke="${theme.nodeFemaleStroke}"`);
-      } else {
-        updated += ` stroke="${theme.nodeFemaleStroke}"`;
-      }
-      return updated + p2;
+  const nameTexts = root.querySelectorAll('[data-testid="person-name"]');
+  nameTexts.forEach((text) => {
+    text.setAttribute('fill', theme.textPrimary);
+    if (theme.fontFamily) {
+      text.setAttribute('font-family', theme.fontFamily);
     }
-  );
+  });
 
-  // 4. Style node typography
-  svgString = svgString.replace(
-    /(<text\b[^>]*\bdata-testid="person-initials"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      const fill = theme.isDark ? '#FFFFFF' : theme.textPrimary;
-      let updated = p1;
-      if (/\bfill="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bfill="[^"]*"/, `fill="${fill}"`);
-      } else {
-        updated += ` fill="${fill}"`;
-      }
-      return updated + p2;
+  const dateTexts = root.querySelectorAll('[data-testid="person-dates"]');
+  dateTexts.forEach((text) => {
+    text.setAttribute('fill', theme.textSecondary);
+    if (theme.fontFamily) {
+      text.setAttribute('font-family', theme.fontFamily);
     }
-  );
+  });
 
-  svgString = svgString.replace(
-    /(<text\b[^>]*\bdata-testid="person-name"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bfill="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bfill="[^"]*"/, `fill="${theme.textPrimary}"`);
-      } else {
-        updated += ` fill="${theme.textPrimary}"`;
-      }
-      return updated + p2;
+  const titlePills = root.querySelectorAll('[data-testid="person-title-pill"] rect');
+  titlePills.forEach((r) => {
+    r.setAttribute('fill', theme.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)');
+    r.setAttribute('stroke', theme.isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)');
+  });
+
+  const titlePillTexts = root.querySelectorAll('[data-testid="person-title-pill"] text');
+  titlePillTexts.forEach((t) => {
+    t.setAttribute('fill', theme.textSecondary);
+    if (theme.fontFamily) {
+      t.setAttribute('font-family', theme.fontFamily);
     }
-  );
+  });
 
-  svgString = svgString.replace(
-    /(<text\b[^>]*\bdata-testid="person-dates"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bfill="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bfill="[^"]*"/, `fill="${theme.textSecondary}"`);
-      } else {
-        updated += ` fill="${theme.textSecondary}"`;
-      }
-      return updated + p2;
-    }
+  // 7. Strip background pattern
+  const gridPatterns = root.querySelectorAll(
+    'pattern#canvas-grid-dots, rect[fill*="canvas-grid-dots"]'
   );
+  gridPatterns.forEach((el) => el.remove());
 
-  // 5. Marriage lines
-  svgString = svgString.replace(
-    /(<line\b[^>]*\bdata-testid="marriage-line-[^"]*"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bstroke="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bstroke="[^"]*"/, `stroke="${theme.marriageStroke}"`);
-      } else {
-        updated += ` stroke="${theme.marriageStroke}"`;
-      }
-      return updated + p2;
-    }
-  );
-
-  // 6. Sibling branch lines and dots
-  svgString = svgString.replace(
-    /(<line\b[^>]*\bdata-testid="(?:stem|bar|drop)-[^"]*"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bstroke="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bstroke="[^"]*"/, `stroke="${theme.siblingStroke}"`);
-      } else {
-        updated += ` stroke="${theme.siblingStroke}"`;
-      }
-      return updated + p2;
-    }
-  );
-
-  svgString = svgString.replace(
-    /(<circle\b[^>]*\br="2"[^>]*?)(\/?>)/gi,
-    (_match: string, p1: string, p2: string) => {
-      let updated = p1;
-      if (/\bfill="[^"]*"/.test(updated)) {
-        updated = updated.replace(/\bfill="[^"]*"/, `fill="${theme.siblingStroke}"`);
-      } else {
-        updated += ` fill="${theme.siblingStroke}"`;
-      }
-      return updated + p2;
-    }
-  );
-
-  // 7. Remove existing dot pattern & rect
-  svgString = svgString.replace(
-    /<pattern\b[^>]*\bid="canvas-grid-dots"[\s\S]*?<\/pattern>/gi,
-    ''
-  );
-  svgString = svgString.replace(
-    /<rect\b[^>]*\bfill="url\(#canvas-grid-dots\)"[^>]*\/?>/gi,
-    ''
-  );
-
-  // 8. Calculate content bounds and dimensions
-  const bounds = calculateSvgContentBounds(svgInput);
+  // 8. Calculate Bounds & Canvas Dimensions
+  const bounds = calculateSvgContentBounds(root);
   const padX = 70;
   const padY = 60;
   const titleHeight = options.includeTitle ? 110 : 0;
-  const legendHeight = options.includeLegend ? 64 : 0;
+  const legendHeight = 36;
+  const legendBottomClearance = 28;
+  const totalLegendSpace = options.includeLegend ? legendHeight + legendBottomClearance : 0;
 
   const totalWidth = Math.max(Math.round(bounds.width + padX * 2), 950);
   const totalHeight = Math.max(
-    Math.round(bounds.height + padY * 2 + titleHeight + legendHeight),
+    Math.round(bounds.height + padY * 2 + titleHeight + totalLegendSpace),
     650
   );
 
-  // Position content inside viewport
-  const targetX = Math.round((totalWidth - bounds.width) / 2 - bounds.minX);
-  const targetY = Math.round(padY + titleHeight - bounds.minY);
+  // Position content inside canvas viewport
+  const viewport = root.querySelector('[data-testid="canvas-viewport"]');
+  if (viewport) {
+    const targetX = Math.round((totalWidth - bounds.width) / 2 - bounds.minX);
+    const targetY = Math.round(padY + titleHeight - bounds.minY);
+    viewport.setAttribute('transform', `translate(${targetX}, ${targetY})`);
+  }
 
-  svgString = svgString.replace(
-    /(<g\b[^>]*\bdata-testid="canvas-viewport"[^>]*?)\btransform="[^"]*"/gi,
-    `$1transform="translate(${targetX}, ${targetY})"`
-  );
+  // 9. Root SVG Attributes
+  root.setAttribute('width', String(totalWidth));
+  root.setAttribute('height', String(totalHeight));
+  root.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`);
+  root.setAttribute('data-theme', theme.id);
+  root.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  root.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-  // 9. Style defs & embedded fonts
-  const fontDefs = `
-    <defs>
-      <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@400;500;600;700&amp;display=swap');
-        text {
-          font-family: ${theme.fontFamily};
-          text-rendering: optimizeLegibility;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-        .font-serif {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-        }
-        .font-sans {
-          font-family: 'Inter', system-ui, sans-serif;
-        }
-        svg {
-          background-color: ${theme.background};
-        }
-      </style>
-    </defs>
-  `;
+  // 10. Inject Background Rect as first child
+  const bgRect = new SvgDomNode('rect');
+  bgRect.setAttribute('x', '0');
+  bgRect.setAttribute('y', '0');
+  bgRect.setAttribute('width', String(totalWidth));
+  bgRect.setAttribute('height', String(totalHeight));
+  bgRect.setAttribute('fill', theme.background);
+  root.insertBefore(bgRect, root.children[0] || null);
 
-  const bgRect = `<rect x="0" y="0" width="${totalWidth}" height="${totalHeight}" fill="${theme.background}" />`;
+  // 11. Inject Embedded CSS & Fonts in <defs>
+  let defs = root.querySelector('defs');
+  if (!defs) {
+    defs = new SvgDomNode('defs');
+    root.insertBefore(defs, root.children[1] || null);
+  }
 
-  // Inject fontDefs and bgRect right after opening <svg ...>
-  svgString = svgString.replace(/<svg\b([^>]*)>/i, (_match: string, attrs: string) => {
-    let cleanAttrs = attrs
-      .replace(/\bwidth="[^"]*"/gi, '')
-      .replace(/\bheight="[^"]*"/gi, '')
-      .replace(/\bviewBox="[^"]*"/gi, '')
-      .replace(/\bdata-theme="[^"]*"/gi, '');
-
-    if (!cleanAttrs.includes('xmlns=')) {
-      cleanAttrs += ' xmlns="http://www.w3.org/2000/svg"';
+  const styleNode = new SvgDomNode('style');
+  styleNode.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap');
+    text {
+      font-family: ${theme.fontFamily};
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
+    .font-serif {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+    .font-sans {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    svg {
+      background-color: ${theme.background};
+    }
+  `;
+  defs.appendChild(styleNode);
 
-    return `<svg width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" data-theme="${theme.id}" ${cleanAttrs}>\n${bgRect}\n${fontDefs}`;
-  });
-
-  // Construct extra decor elements
-  const decorElements: string[] = [];
-
+  // 12. Inject Decorative Border
   if (options.includeBorder) {
-    decorElements.push(createBorderElement(totalWidth, totalHeight, theme));
+    const borderMarkup = createBorderElement(totalWidth, totalHeight, theme);
+    const borderNode = parseSvgXml(borderMarkup);
+    root.appendChild(borderNode);
   }
 
+  // 13. Inject Title Banner
   if (options.includeTitle) {
-    decorElements.push(
-      createTitleBannerElement(
-        totalWidth,
-        padY + 10,
-        theme,
-        options.treeTitle,
-        options.treeSubtitle
-      )
+    const titleMarkup = createTitleBannerElement(
+      totalWidth,
+      padY + 10,
+      theme,
+      options.treeTitle,
+      options.treeSubtitle
     );
+    const titleNode = parseSvgXml(titleMarkup);
+    root.appendChild(titleNode);
   }
 
+  // 14. Inject Pedigree Legend (positioned safely inside decorative frame)
   if (options.includeLegend) {
-    decorElements.push(
-      createLegendElement(totalWidth, totalHeight - padY + 10, theme)
-    );
+    // Clearance: safely above the bottom decorative border
+    const legendY = totalHeight - legendHeight - legendBottomClearance;
+    const legendMarkup = createLegendElement(totalWidth, legendY, theme);
+    const legendNode = parseSvgXml(legendMarkup);
+    root.appendChild(legendNode);
   }
 
-  if (decorElements.length > 0) {
-    svgString = svgString.replace('</svg>', `${decorElements.join('\n')}\n</svg>`);
-  }
-
-  return svgString;
+  return root.toString();
 }

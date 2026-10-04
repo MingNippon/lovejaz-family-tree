@@ -160,31 +160,61 @@ describe('applyThemeToSvg Engine', () => {
 
     sampleSvg.innerHTML = `
       <g data-testid="canvas-viewport" transform="translate(10, 20) scale(1.5)">
-        <g data-testid="generation-ruler">
-          <line x1="0" y1="100" x2="800" y2="100" stroke="#334155" />
-          <text x="20" y="90">Generation I</text>
+        <!-- Generation ruler with nested <g> tiers and badge groups -->
+        <g data-testid="generation-ruler" class="generation-ruler select-none">
+          <g data-testid="generation-tier-0" class="generation-tier">
+            <line x1="-30" y1="100" x2="850" y2="100" stroke="rgba(148, 163, 184, 0.2)" stroke-width="1" />
+            <circle cx="-30" cy="100" r="2.5" fill="rgba(148, 163, 184, 0.4)" />
+            <circle cx="850" cy="100" r="2.5" fill="rgba(148, 163, 184, 0.4)" />
+            <g class="generation-badge">
+              <rect x="-195" y="87" width="120" height="26" rx="13" fill="rgba(15, 23, 42, 0.85)" stroke="rgba(148, 163, 184, 0.35)" />
+              <text x="-135" y="100" fill="#E2E8F0">Generation I</text>
+            </g>
+          </g>
         </g>
-        <g class="marriage-lines">
-          <line data-testid="marriage-line-u1" x1="100" y1="100" x2="200" y2="100" stroke="#94A3B8" />
+
+        <!-- Marriage lines group with nested <g> and knot circle -->
+        <g data-testid="marriage-lines-group" class="marriage-lines">
+          <g data-testid="marriage-line-u1" class="marriage-line">
+            <line x1="100" y1="100" x2="200" y2="100" stroke="#94A3B8" stroke-width="2" />
+            <circle cx="150" cy="100" r="2.5" fill="#E2E8F0" stroke="#475569" stroke-width="1" />
+          </g>
         </g>
-        <g class="sibling-branches">
-          <line data-testid="stem-u1" x1="150" y1="100" x2="150" y2="180" stroke="#94A3B8" />
-          <line data-testid="bar-u1" x1="100" y1="180" x2="200" y2="180" stroke="#94A3B8" />
-          <circle cx="100" cy="180" r="2" fill="#94A3B8" />
+
+        <!-- Sibling branches group with nested <g>, stem, bar, and drop groups -->
+        <g data-testid="sibling-branches-group" class="sibling-branches">
+          <g data-testid="sibling-branch-u1" class="sibling-branch">
+            <line data-testid="stem-u1" x1="150" y1="100" x2="150" y2="180" stroke="#94A3B8" stroke-width="2" />
+            <line data-testid="bar-u1" x1="100" y1="180" x2="200" y2="180" stroke="#94A3B8" stroke-width="2" />
+            <g data-testid="drop-p3">
+              <line x1="150" y1="180" x2="150" y2="240" stroke="#94A3B8" stroke-width="2" />
+              <circle cx="150" cy="180" r="2" fill="#94A3B8" />
+            </g>
+          </g>
         </g>
-        <g class="nodes-container">
-          <g data-testid="person-node-p1" class="person-node">
-            <rect data-testid="selected-halo" x="94" y="94" width="84" height="84" />
+
+        <!-- Nodes container with real PersonNode markup including foreignObject toolbar & halo -->
+        <g data-testid="nodes-container" class="nodes-container">
+          <g data-testid="person-node-p1" class="person-node is-selected">
+            <rect data-testid="selected-halo" x="94" y="94" width="84" height="84" fill="none" stroke="#38BDF8" />
             <rect data-testid="node-shape" data-gender="male" x="100" y="100" width="72" height="72" fill="#0F172A" stroke="#3B82F6" />
             <text data-testid="person-initials" x="136" y="136">JD</text>
             <text data-testid="person-name" x="136" y="192">John Doe</text>
             <text data-testid="person-dates" x="136" y="208">1980 (46y)</text>
+            <!-- ForeignObject toolbar that must be stripped during export -->
+            <foreignObject data-testid="quick-action-toolbar-foreign-object" x="26" y="44" width="220" height="44">
+              <div data-testid="quick-action-toolbar">Toolbar Content</div>
+            </foreignObject>
           </g>
           <g data-testid="person-node-p2" class="person-node">
             <circle data-testid="node-shape" data-gender="female" cx="236" cy="136" r="36" fill="#0F172A" stroke="#EC4899" />
             <text data-testid="person-initials" x="236" y="136">JD</text>
             <text data-testid="person-name" x="236" y="192">Jane Doe</text>
             <text data-testid="person-dates" x="236" y="208">1982 (44y)</text>
+            <g data-testid="person-title-pill" class="person-title-pill">
+              <rect x="200" y="220" width="72" height="18" fill="rgba(51, 65, 85, 0.75)" stroke="rgba(148, 163, 184, 0.35)" />
+              <text x="236" y="229" fill="#CBD5E1">Matriarch</text>
+            </g>
           </g>
         </g>
       </g>
@@ -221,17 +251,48 @@ describe('applyThemeToSvg Engine', () => {
     };
 
     const result = applyThemeToSvg(sampleSvg, navyTheme, options);
-    // Male node should have navy male stroke (gold)
     expect(result).toContain(`fill="${navyTheme.nodeMaleFill}"`);
     expect(result).toContain(`stroke="${navyTheme.nodeMaleStroke}"`);
-    // Female node should have navy female stroke
     expect(result).toContain(`fill="${navyTheme.nodeFemaleFill}"`);
     expect(result).toContain(`stroke="${navyTheme.nodeFemaleStroke}"`);
-    // Marriage line should have navy gold stroke
-    expect(result).toContain(`stroke="${navyTheme.marriageStroke}"`);
   });
 
-  it('strips interactive elements like selected halo ring', () => {
+  it('recolors marriage lines and knot circles inside nested groups (.marriage-lines line, .marriage-line line)', () => {
+    const options: ExportOptions = {
+      theme: 'vintage',
+      resolution: 1,
+      format: 'svg',
+      includeTitle: false,
+      includeGenerations: true,
+      includeLegend: false,
+      includeBorder: false,
+      treeTitle: 'Marriage Recolor',
+    };
+
+    const result = applyThemeToSvg(sampleSvg, vintageTheme, options);
+    // Marriage line and knot circle should use vintage sepia ink stroke (#52432D)
+    expect(result).toContain(`stroke="${vintageTheme.marriageStroke}"`);
+  });
+
+  it('recolors sibling branches, bars, and drop connectors inside nested groups (.sibling-branches line, .sibling-branch line)', () => {
+    const options: ExportOptions = {
+      theme: 'navy',
+      resolution: 1,
+      format: 'svg',
+      includeTitle: false,
+      includeGenerations: true,
+      includeLegend: false,
+      includeBorder: false,
+      treeTitle: 'Sibling Recolor',
+    };
+
+    const result = applyThemeToSvg(sampleSvg, navyTheme, options);
+    // Sibling branches and drop dots should use navy sibling stroke (#B8972E)
+    expect(result).toContain(`stroke="${navyTheme.siblingStroke}"`);
+    expect(result).toContain(`fill="${navyTheme.siblingStroke}"`);
+  });
+
+  it('completely strips foreignObject quick-action-toolbar and selection halos preventing canvas tainting', () => {
     const options: ExportOptions = {
       theme: 'minimalist',
       resolution: 1,
@@ -244,6 +305,9 @@ describe('applyThemeToSvg Engine', () => {
     };
 
     const result = applyThemeToSvg(sampleSvg, minimalistTheme, options);
+    expect(result).not.toContain('<foreignObject');
+    expect(result).not.toContain('foreignObject');
+    expect(result).not.toContain('quick-action-toolbar');
     expect(result).not.toContain('data-testid="selected-halo"');
   });
 
@@ -282,7 +346,7 @@ describe('applyThemeToSvg Engine', () => {
     expect(result).not.toContain('data-testid="export-title-banner"');
   });
 
-  it('removes generation ruler when includeGenerations is false', () => {
+  it('completely removes nested generation ruler without leaving broken closing tags', () => {
     const options: ExportOptions = {
       theme: 'minimalist',
       resolution: 1,
@@ -296,9 +360,16 @@ describe('applyThemeToSvg Engine', () => {
 
     const result = applyThemeToSvg(sampleSvg, minimalistTheme, options);
     expect(result).not.toContain('data-testid="generation-ruler"');
+    expect(result).not.toContain('generation-tier');
+    expect(result).not.toContain('generation-badge');
+    expect(result).not.toContain('Generation I');
+    // Ensure all opened <g> tags are cleanly matched by closing </g> tags (no corrupted/broken tags)
+    const openGCount = (result.match(/<g\b/g) || []).length;
+    const closeGCount = (result.match(/<\/g>/g) || []).length;
+    expect(openGCount).toBe(closeGCount);
   });
 
-  it('injects pedigree legend when includeLegend is true', () => {
+  it('injects pedigree legend positioned safely inside bottom decorative border', () => {
     const options: ExportOptions = {
       theme: 'navy',
       resolution: 4,
@@ -306,8 +377,8 @@ describe('applyThemeToSvg Engine', () => {
       includeTitle: false,
       includeGenerations: true,
       includeLegend: true,
-      includeBorder: false,
-      treeTitle: 'Legend Tree',
+      includeBorder: true,
+      treeTitle: 'Legend Clearance Tree',
     };
 
     const result = applyThemeToSvg(sampleSvg, navyTheme, options);
@@ -315,6 +386,22 @@ describe('applyThemeToSvg Engine', () => {
     expect(result).toContain('Male');
     expect(result).toContain('Female');
     expect(result).toContain('Marriage');
+
+    // Extract root SVG height attribute and legend transform Y
+    const rootHeightMatch = result.match(/<svg\b[^>]*\bheight="(\d+)"/);
+    const legendYMatch = result.match(/<g\b[^>]*\bdata-testid="export-legend"[^>]*\btransform="translate\(0,\s*(\d+)\)"/);
+
+    expect(rootHeightMatch).not.toBeNull();
+    expect(legendYMatch).not.toBeNull();
+
+    if (rootHeightMatch && legendYMatch) {
+      const totalH = parseInt(rootHeightMatch[1], 10);
+      const legY = parseInt(legendYMatch[1], 10);
+      // y = totalHeight - 36 - 28, pill bottom at legY + 36 = totalHeight - 28
+      // Decorative border is at totalHeight - 18, so pill is safely 10px inside border!
+      expect(legY).toBe(totalH - 36 - 28);
+      expect(totalH - (legY + 36)).toBe(28);
+    }
   });
 
   it('injects decorative border frame when includeBorder is true', () => {
