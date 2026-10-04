@@ -521,6 +521,12 @@ export const Canvas: React.FC<CanvasProps> = ({
       <svg
         ref={setCombinedSvgRef}
         data-testid="family-tree-svg"
+        data-bounds-min-x={layout.bounds.minX}
+        data-bounds-min-y={layout.bounds.minY}
+        data-bounds-max-x={layout.bounds.maxX}
+        data-bounds-max-y={layout.bounds.maxY}
+        data-bounds-width={layout.bounds.width}
+        data-bounds-height={layout.bounds.height}
         className="w-full h-full block touch-none pointer-events-auto"
         xmlns="http://www.w3.org/2000/svg"
       >
