@@ -139,6 +139,22 @@ describe('Canvas Pan & Zoom Math Utilities', () => {
       expect(projectedCenterY).toBeCloseTo(1080 / 2, 1);
     });
 
+    it('accounts for ruler badge offset when includeRuler is true', () => {
+      const bounds = { minX: 200, maxX: 1000, minY: 0, maxY: 600, width: 800, height: 600 };
+      const viewport = { width: 1200, height: 800 };
+
+      const withoutRuler = calculateFitToScreen(bounds, viewport, 50, 1.2, false);
+      const withRuler = calculateFitToScreen(bounds, viewport, 50, 1.2, true);
+
+      // With ruler, effectiveMinX is shifted left by 180, so the center is shifted left
+      // Consequently, withRuler.x should shift right to keep the badge in view
+      expect(withRuler.x).toBeGreaterThan(withoutRuler.x);
+
+      // Left edge of the badge in screen coordinates: (bounds.minX - 180) * scale + x
+      const badgeScreenX = (bounds.minX - 180) * withRuler.scale + withRuler.x;
+      expect(badgeScreenX).toBeGreaterThanOrEqual(40); // Within viewport margins
+    });
+
     it('handles zero or invalid viewport gracefully without throwing or NaN', () => {
       const bounds = { minX: 0, maxX: 500, minY: 0, maxY: 500, width: 500, height: 500 };
       const zeroViewport = { width: 0, height: 0 };
@@ -167,6 +183,10 @@ describe('Canvas Pan & Zoom Math Utilities', () => {
       expect(formatGenerationLabel(0, customT)).toBe('Thế hệ I');
       expect(formatGenerationLabel(2, customT)).toBe('Thế hệ III');
     });
+
+    it('uses fallback label if translation is missing', () => {
+      expect(formatGenerationLabel(0, undefined, 'Custom Tier Label')).toBe('Custom Tier Label');
+    });
   });
 });
 
@@ -179,7 +199,7 @@ describe('GenerationRuler Component', () => {
 
   const mockBounds = { minX: 50, maxX: 850, minY: 50, maxY: 650, width: 800, height: 600 };
 
-  it('renders generation tiers with badges and guide lines', () => {
+  it('renders generation tiers with badges, dominantBaseline central, and guide lines', () => {
     const html = renderToString(
       <svg>
         <GenerationRuler generations={mockGenerations} bounds={mockBounds} visible={true} />
@@ -190,6 +210,7 @@ describe('GenerationRuler Component', () => {
     expect(html).toContain('data-testid="generation-tier-0"');
     expect(html).toContain('data-testid="generation-tier-1"');
     expect(html).toContain('data-testid="generation-tier-2"');
+    expect(html).toContain('dominant-baseline="central"');
     expect(html).toContain('Generation I');
     expect(html).toContain('Generation II');
     expect(html).toContain('Generation III');

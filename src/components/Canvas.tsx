@@ -4,8 +4,14 @@ import {
   MarriageLine,
   SiblingBranch,
 } from '../types/family';
-import { GenerationRuler, romanNumeral } from './GenerationRuler';
+import {
+  GenerationRuler,
+  romanNumeral,
+  formatGenerationLabel,
+} from './GenerationRuler';
 import { FloatingControls } from './FloatingControls';
+
+export { romanNumeral, formatGenerationLabel };
 
 export const MIN_ZOOM = 0.2;
 export const MAX_ZOOM = 3.0;
@@ -63,20 +69,26 @@ export function calculateFitToScreen(
   bounds: LayoutResult['bounds'],
   viewport: { width: number; height: number },
   padding = 60,
-  maxFitScale = 1.2
+  maxFitScale = 1.2,
+  includeRuler = false
 ): CanvasTransform {
   if (!viewport.width || !viewport.height || viewport.width <= 0 || viewport.height <= 0) {
     return { x: 0, y: 0, scale: 1.0 };
   }
 
+  // Account for generation ruler badges offset on the left (~180px) when visible
+  const rulerLeftOffset = includeRuler ? 180 : 0;
+  const effectiveMinX = bounds.minX - rulerLeftOffset;
+  const effectiveMaxX = bounds.maxX;
+  const effectiveWidth = Math.max(effectiveMaxX - effectiveMinX, 100);
+  const effectiveHeight = Math.max(bounds.height, 100);
+
   const availW = Math.max(viewport.width - padding * 2, 50);
   const availH = Math.max(viewport.height - padding * 2, 50);
-  const boundW = Math.max(bounds.width, 100);
-  const boundH = Math.max(bounds.height, 100);
 
-  const scale = clampZoom(Math.min(availW / boundW, availH / boundH, maxFitScale));
+  const scale = clampZoom(Math.min(availW / effectiveWidth, availH / effectiveHeight, maxFitScale));
 
-  const boundsCenterX = (bounds.minX + bounds.maxX) / 2;
+  const boundsCenterX = (effectiveMinX + effectiveMaxX) / 2;
   const boundsCenterY = (bounds.minY + bounds.maxY) / 2;
 
   const viewportCenterX = viewport.width / 2;
@@ -86,20 +98,6 @@ export function calculateFitToScreen(
   const y = viewportCenterY - boundsCenterY * scale;
 
   return { x, y, scale };
-}
-
-export function formatGenerationLabel(
-  generation: number,
-  t?: (key: string, params?: Record<string, string | number>) => string
-): string {
-  const roman = romanNumeral(generation + 1);
-  if (t) {
-    const translated = t('generationLabel', { num: roman });
-    if (translated && translated !== 'generationLabel') {
-      return translated;
-    }
-  }
-  return `Generation ${roman}`;
 }
 
 export const Canvas: React.FC<CanvasProps> = ({
@@ -131,15 +129,28 @@ export const Canvas: React.FC<CanvasProps> = ({
 
   const currentTransform = controlledTransform || internalTransform;
 
+  // Stable refs to prevent unnecessary recreation of callbacks and effects
+  const transformRef = useRef<CanvasTransform>(currentTransform);
+  transformRef.current = currentTransform;
+
+  const onTransformChangeRef = useRef(onTransformChange);
+  onTransformChangeRef.current = onTransformChange;
+
+  const controlledTransformRef = useRef(controlledTransform);
+  controlledTransformRef.current = controlledTransform;
+
+  // Stable transform updater using ref values
   const updateTransform = useCallback(
     (next: CanvasTransform | ((prev: CanvasTransform) => CanvasTransform)) => {
-      const resolved = typeof next === 'function' ? next(currentTransform) : next;
-      if (!controlledTransform) {
+      const prev = transformRef.current;
+      const resolved = typeof next === 'function' ? next(prev) : next;
+      transformRef.current = resolved;
+      if (!controlledTransformRef.current) {
         setInternalTransform(resolved);
       }
-      onTransformChange?.(resolved);
+      onTransformChangeRef.current?.(resolved);
     },
-    [currentTransform, controlledTransform, onTransformChange]
+    []
   );
 
   // Uncontrolled generation ruler visibility
@@ -150,8 +161,11 @@ export const Canvas: React.FC<CanvasProps> = ({
   // Dragging & Interaction State
   const [isDragging, setIsDragging] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
-  const dragStartRef = useRef<{ clientX: number; clientY: number; x: number; y: number } | null>(null);
+  const dragStartRef = useRef<{ clientX: number; clientY: number; x: number; y: number; scale: number } | null>(null);
   const pinchStartRef = useRef<{ dist: number; scale: number; midX: number; midY: number } | null>(null);
+
+  // Single-run ref guard for auto-fit on mount
+  const hasAutoFittedRef = useRef(false);
 
   // Attach SVG ref (both internal and exposed forward ref)
   const setCombinedSvgRef = useCallback(
@@ -168,19 +182,23 @@ export const Canvas: React.FC<CanvasProps> = ({
     [svgRef]
   );
 
-  // Auto-fit on mount if enabled
+  // Auto-fit on mount (runs strictly once when dimensions are acquired)
   useEffect(() => {
-    if (autoFitOnMount && containerRef.current) {
+    if (autoFitOnMount && !hasAutoFittedRef.current && containerRef.current) {
       const { clientWidth, clientHeight } = containerRef.current;
       if (clientWidth > 0 && clientHeight > 0) {
-        const fit = calculateFitToScreen(layout.bounds, {
-          width: clientWidth,
-          height: clientHeight,
-        });
+        hasAutoFittedRef.current = true;
+        const fit = calculateFitToScreen(
+          layout.bounds,
+          { width: clientWidth, height: clientHeight },
+          60,
+          1.2,
+          isGenVisible
+        );
         updateTransform(fit);
       }
     }
-  }, [autoFitOnMount, layout.bounds, updateTransform]);
+  }, [autoFitOnMount, isGenVisible, layout.bounds, updateTransform]);
 
   // Keyboard Space key detection for Space+Drag
   useEffect(() => {
@@ -215,12 +233,14 @@ export const Canvas: React.FC<CanvasProps> = ({
       return;
     }
 
+    const curr = transformRef.current;
     setIsDragging(true);
     dragStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
-      x: currentTransform.x,
-      y: currentTransform.y,
+      x: curr.x,
+      y: curr.y,
+      scale: curr.scale,
     };
   };
 
@@ -230,10 +250,10 @@ export const Canvas: React.FC<CanvasProps> = ({
     const dx = e.clientX - dragStartRef.current.clientX;
     const dy = e.clientY - dragStartRef.current.clientY;
 
-    updateTransform((prev) => ({
-      ...prev,
+    updateTransform(() => ({
       x: dragStartRef.current!.x + dx,
       y: dragStartRef.current!.y + dy,
+      scale: dragStartRef.current!.scale,
     }));
   };
 
@@ -253,22 +273,31 @@ export const Canvas: React.FC<CanvasProps> = ({
       y: e.clientY - rect.top,
     };
 
+    const curr = transformRef.current;
     const zoomFactor = Math.exp(-e.deltaY * 0.002);
-    const targetScale = currentTransform.scale * zoomFactor;
+    const targetScale = curr.scale * zoomFactor;
 
-    const next = calculateZoomAtPoint(currentTransform, focalPoint, targetScale, minZoom, maxZoom);
+    const next = calculateZoomAtPoint(curr, focalPoint, targetScale, minZoom, maxZoom);
     updateTransform(next);
   };
 
   // Touch pan & pinch zoom handlers
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    // Prevent dragging when tapping interactive UI elements on mobile
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, textarea, select, [data-interactive="true"]')) {
+      return;
+    }
+
+    const curr = transformRef.current;
     if (e.touches.length === 1) {
       setIsDragging(true);
       dragStartRef.current = {
         clientX: e.touches[0].clientX,
         clientY: e.touches[0].clientY,
-        x: currentTransform.x,
-        y: currentTransform.y,
+        x: curr.x,
+        y: curr.y,
+        scale: curr.scale,
       };
       pinchStartRef.current = null;
     } else if (e.touches.length === 2 && containerRef.current) {
@@ -282,7 +311,7 @@ export const Canvas: React.FC<CanvasProps> = ({
 
       pinchStartRef.current = {
         dist: dist || 1,
-        scale: currentTransform.scale,
+        scale: curr.scale,
         midX,
         midY,
       };
@@ -293,10 +322,10 @@ export const Canvas: React.FC<CanvasProps> = ({
     if (e.touches.length === 1 && isDragging && dragStartRef.current) {
       const dx = e.touches[0].clientX - dragStartRef.current.clientX;
       const dy = e.touches[0].clientY - dragStartRef.current.clientY;
-      updateTransform((prev) => ({
-        ...prev,
+      updateTransform(() => ({
         x: dragStartRef.current!.x + dx,
         y: dragStartRef.current!.y + dy,
+        scale: dragStartRef.current!.scale,
       }));
     } else if (e.touches.length === 2 && pinchStartRef.current) {
       const t1 = e.touches[0];
@@ -305,8 +334,9 @@ export const Canvas: React.FC<CanvasProps> = ({
       const ratio = dist / pinchStartRef.current.dist;
       const newScale = pinchStartRef.current.scale * ratio;
 
+      const curr = transformRef.current;
       const next = calculateZoomAtPoint(
-        currentTransform,
+        curr,
         { x: pinchStartRef.current.midX, y: pinchStartRef.current.midY },
         newScale,
         minZoom,
@@ -333,10 +363,11 @@ export const Canvas: React.FC<CanvasProps> = ({
 
   const handleZoomIn = () => {
     const focalPoint = getViewportCenter();
+    const curr = transformRef.current;
     const next = calculateZoomAtPoint(
-      currentTransform,
+      curr,
       focalPoint,
-      currentTransform.scale * 1.25,
+      curr.scale * 1.25,
       minZoom,
       maxZoom
     );
@@ -345,10 +376,11 @@ export const Canvas: React.FC<CanvasProps> = ({
 
   const handleZoomOut = () => {
     const focalPoint = getViewportCenter();
+    const curr = transformRef.current;
     const next = calculateZoomAtPoint(
-      currentTransform,
+      curr,
       focalPoint,
-      currentTransform.scale / 1.25,
+      curr.scale / 1.25,
       minZoom,
       maxZoom
     );
@@ -357,7 +389,8 @@ export const Canvas: React.FC<CanvasProps> = ({
 
   const handleResetZoom = () => {
     const focalPoint = getViewportCenter();
-    const next = calculateZoomAtPoint(currentTransform, focalPoint, 1.0, minZoom, maxZoom);
+    const curr = transformRef.current;
+    const next = calculateZoomAtPoint(curr, focalPoint, 1.0, minZoom, maxZoom);
     updateTransform(next);
   };
 
@@ -367,7 +400,9 @@ export const Canvas: React.FC<CanvasProps> = ({
       const fit = calculateFitToScreen(
         layout.bounds,
         { width: clientWidth, height: clientHeight },
-        60
+        60,
+        1.2,
+        isGenVisible
       );
       updateTransform(fit);
     }

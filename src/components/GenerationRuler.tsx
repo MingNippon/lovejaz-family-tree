@@ -29,6 +29,21 @@ export function romanNumeral(num: number): string {
   return result || 'I';
 }
 
+export function formatGenerationLabel(
+  generation: number,
+  t?: (key: string, params?: Record<string, string | number>) => string,
+  fallbackLabel?: string
+): string {
+  const roman = romanNumeral(generation + 1);
+  if (t) {
+    const translated = t('generationLabel', { num: roman });
+    if (translated && translated !== 'generationLabel') {
+      return translated;
+    }
+  }
+  return fallbackLabel || `Generation ${roman}`;
+}
+
 export const GenerationRuler: React.FC<GenerationRulerProps> = ({
   generations,
   bounds,
@@ -57,12 +72,7 @@ export const GenerationRuler: React.FC<GenerationRulerProps> = ({
       pointerEvents="none"
     >
       {generations.map((tier) => {
-        const roman = romanNumeral(tier.generation + 1);
-        const translated = t('generationLabel', { num: roman });
-        const displayLabel =
-          translated && translated !== 'generationLabel'
-            ? translated
-            : tier.label || `Generation ${roman}`;
+        const displayLabel = formatGenerationLabel(tier.generation, t, tier.label);
 
         // Node center Y is tier.y + 36 (half of NODE_SIZE 72)
         const centerY = tier.y + 36;
@@ -115,11 +125,12 @@ export const GenerationRuler: React.FC<GenerationRulerProps> = ({
                 stroke="rgba(148, 163, 184, 0.35)"
                 strokeWidth={1}
               />
-              {/* Roman numeral / translated title */}
+              {/* Roman numeral / translated title with dominantBaseline="central" */}
               <text
                 x={badgeX + badgeWidth / 2}
-                y={badgeY + badgeHeight / 2 + 4}
+                y={centerY}
                 textAnchor="middle"
+                dominantBaseline="central"
                 fill="#E2E8F0"
                 fontSize={11}
                 fontWeight={600}
