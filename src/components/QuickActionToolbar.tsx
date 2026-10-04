@@ -39,10 +39,8 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
   t: customT,
   className,
 }) => {
-  // If custom translation function is provided (e.g. In unit tests), use it directly.
-  // Otherwise, use the useI18n() hook.
-  const i18n = customT ? null : useI18n();
-  const t = customT || (i18n ? i18n.t : ((k: string) => k));
+  const i18n = useI18n();
+  const t = customT || i18n.t;
 
   const baseBtnClass =
     'p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/90 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/50 flex items-center justify-center';

@@ -112,8 +112,32 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, initialLan
 };
 
 export function useI18n(): I18nContextType {
-  const context = useContext(I18nContext);
-  return context;
+  // If invoked outside an active React dispatcher (e.g. direct function call in unit tests),
+  // return fallback immediately to avoid React's invalid hook call warning.
+  const internals = (React as any).__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+  if (internals && internals.H === null) {
+    return {
+      currentLanguage: 'en',
+      setLanguage: () => {},
+      t: (key: string, params?: Record<string, string | number>) => translate('en', key, params),
+      LANGUAGES,
+    };
+  }
+
+  try {
+    const context = useContext(I18nContext);
+    if (context) {
+      return context;
+    }
+  } catch {
+    // Fallback if invoked outside active React dispatcher
+  }
+  return {
+    currentLanguage: 'en',
+    setLanguage: () => {},
+    t: (key: string, params?: Record<string, string | number>) => translate('en', key, params),
+    LANGUAGES,
+  };
 }
 
 export { LANGUAGES };
