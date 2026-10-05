@@ -9,6 +9,10 @@ export const ja: TranslationDictionary = {
   shareLink: 'リンクを共有',
   exportImage: 'エクスポート',
   deployGuide: 'デプロイ手順',
+  loveJazGuide: 'Love Jaz ガイド',
+  loveJazGuideTitle: '💖 How to Love Jaz — ユーザーマニュアル v1.0',
+  userManualTab: '💖 Jazを愛する方法',
+  deployGuideTab: '🚀 無料グローバル公開・デプロイ',
   language: '言語',
 
   // Pedigree Symbols & Roles

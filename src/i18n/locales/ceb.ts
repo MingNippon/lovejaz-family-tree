@@ -9,6 +9,10 @@ export const ceb: TranslationDictionary = {
   shareLink: 'I-share ang Link',
   exportImage: 'I-export',
   deployGuide: 'Giya sa Pag-deploy',
+  loveJazGuide: 'Giya sa Love Jaz',
+  loveJazGuideTitle: '💖 Unsaon Paghigugma kang Jaz — User Manual v1.0',
+  userManualTab: '💖 Giya sa Gugma kang Jaz',
+  deployGuideTab: '🚀 Libreng Pag-deploy sa Kalibutan',
   language: 'Pinulongan',
 
   // Pedigree Symbols & Roles

@@ -7,6 +7,8 @@ import { I18nProvider } from '../i18n';
 import { getSampleFamilyTree } from '../utils/sampleData';
 import { encodeTreeToUrl } from '../utils/share';
 
+import { LoveJazGuideModal } from './LoveJazGuideModal';
+
 describe('Header Component Rendering & Actions', () => {
   const sampleTree = getSampleFamilyTree();
 
@@ -62,6 +64,7 @@ describe('Header Component Rendering & Actions', () => {
         onOpenShare={vi.fn()}
         onOpenExport={vi.fn()}
         onOpenDeployGuide={vi.fn()}
+        onOpenLoveJazGuide={vi.fn()}
       />
     );
 
@@ -71,7 +74,7 @@ describe('Header Component Rendering & Actions', () => {
     expect(html).toContain('data-testid="header-export-json-btn"');
     expect(html).toContain('data-testid="header-share-btn"');
     expect(html).toContain('data-testid="header-export-image-btn"');
-    expect(html).toContain('data-testid="header-deploy-guide-btn"');
+    expect(html).toContain('data-testid="header-love-jaz-guide-btn"');
     expect(html).toContain('data-testid="header-file-input"');
   });
 
@@ -98,7 +101,7 @@ describe('Header Component Rendering & Actions', () => {
     expect(html).toContain('サンプル家系図'); // sampleTree
     expect(html).toContain('リンクを共有'); // shareLink
     expect(html).toContain('エクスポート'); // exportImage
-    expect(html).toContain('デプロイ手順'); // deployGuide
+    expect(html).toContain('Love Jaz ガイド'); // loveJazGuide
   });
 
   it('renders translated button labels in Tagalog when wrapped in I18nProvider', () => {
@@ -111,7 +114,7 @@ describe('Header Component Rendering & Actions', () => {
     expect(html).toContain('Bagong Puno'); // newTree
     expect(html).toContain('Sampol na Puno'); // sampleTree
     expect(html).toContain('Ibahagi ang Link'); // shareLink
-    expect(html).toContain('Gabay sa Pag-deploy'); // deployGuide
+    expect(html).toContain('Gabay sa Love Jaz'); // loveJazGuide
   });
 
   it('renders translated button labels in Chinese when wrapped in I18nProvider', () => {
@@ -124,7 +127,7 @@ describe('Header Component Rendering & Actions', () => {
     expect(html).toContain('新建谱系'); // newTree
     expect(html).toContain('示例家谱'); // sampleTree
     expect(html).toContain('分享链接'); // shareLink
-    expect(html).toContain('部署指南'); // deployGuide
+    expect(html).toContain('Love Jaz 指南'); // loveJazGuide
   });
 });
 
@@ -373,5 +376,66 @@ describe('DeployGuideModal Component Rendering & Providers', () => {
     );
 
     expect(html).toContain('無料グローバル公開・デプロイ手順'); // deployGuideTitle
+  });
+});
+
+describe('LoveJazGuideModal Component Rendering & User Manual', () => {
+  it('renders nothing when isOpen is false', () => {
+    const html = renderToString(<LoveJazGuideModal isOpen={false} onClose={vi.fn()} />);
+    expect(html).toBe('');
+  });
+
+  it('renders modal dialog when isOpen is true with accessibility attributes', () => {
+    const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} />);
+    expect(html).toContain('data-testid="love-jaz-guide-modal"');
+    expect(html).toContain('role="dialog"');
+    expect(html).toContain('aria-modal="true"');
+    expect(html).toContain('data-testid="love-jaz-guide-close-btn"');
+    expect(html).toContain('data-testid="love-jaz-guide-backdrop"');
+  });
+
+  it('renders the 22 relationship situations from the user manual', () => {
+    const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} />);
+    expect(html).toContain('data-testid="situation-row-morning"');
+    expect(html).toContain('data-testid="situation-row-school-exams"');
+    expect(html).toContain('data-testid="situation-row-when-shes-tired"');
+    expect(html).toContain('data-testid="situation-row-when-you-miss-her"');
+    expect(html).toContain('data-testid="situation-row-trust"');
+    expect(html).toContain('data-testid="situation-row-the-ultimate-goal"');
+    expect(html).toContain('Say good morning, ask if she slept well');
+    expect(html).toContain('Make her feel obligated to reply the moment she wakes up');
+    expect(html).toContain('Make Jaz feel: &quot;I am loved, respected, and safe enough to be honest with him.&quot;');
+  });
+
+  it('renders the 4 Rules card (Affection, Trust, Boundaries, Independence)', () => {
+    const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} />);
+    expect(html).toContain('data-testid="the-four-rules-card"');
+    expect(html).toContain('data-testid="rule-card-affection"');
+    expect(html).toContain('data-testid="rule-card-trust"');
+    expect(html).toContain('data-testid="rule-card-boundaries"');
+    expect(html).toContain('data-testid="rule-card-independence"');
+    expect(html).toContain('Love = Affection + Trust + Boundaries + Independence');
+  });
+
+  it('renders navigation tabs for both Manual and Deployment guide', () => {
+    const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} />);
+    expect(html).toContain('data-testid="guide-tab-manual"');
+    expect(html).toContain('data-testid="guide-tab-deploy"');
+  });
+
+  it('renders deployment guide when initialTab is deploy', () => {
+    const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} initialTab="deploy" />);
+    expect(html).toContain('data-testid="deploy-guide-content"');
+    expect(html).toContain('data-testid="deploy-tab-vercel"');
+    expect(html).toContain('data-testid="deploy-tab-cloudflare"');
+  });
+
+  it('renders localized modal title in Vietnamese when wrapped in I18nProvider', () => {
+    const html = renderToString(
+      <I18nProvider initialLanguage="vi">
+        <LoveJazGuideModal isOpen={true} onClose={vi.fn()} />
+      </I18nProvider>
+    );
+    expect(html).toContain('Hướng dẫn cách yêu Jaz — Cẩm nang v1.0');
   });
 });

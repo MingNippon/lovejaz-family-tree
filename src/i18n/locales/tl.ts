@@ -9,6 +9,10 @@ export const tl: TranslationDictionary = {
   shareLink: 'Ibahagi ang Link',
   exportImage: 'I-export',
   deployGuide: 'Gabay sa Pag-deploy',
+  loveJazGuide: 'Gabay sa Love Jaz',
+  loveJazGuideTitle: '💖 Paano Mahalin si Jaz — User Manual v1.0',
+  userManualTab: '💖 Paano Mahalin si Jaz',
+  deployGuideTab: '🚀 Libreng Pandaigdigang Pag-deploy',
   language: 'Wika',
 
   // Pedigree Symbols & Roles

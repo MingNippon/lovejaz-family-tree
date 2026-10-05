@@ -7,7 +7,7 @@ import { AddChildModal } from './components/AddChildModal';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { ExportModal } from './components/ExportModal';
 import { ShareModal } from './components/ShareModal';
-import { DeployGuideModal } from './components/DeployGuideModal';
+import { LoveJazGuideModal } from './components/LoveJazGuideModal';
 
 import {
   FamilyTreeData,
@@ -358,6 +358,7 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isDeployGuideModalOpen, setIsDeployGuideModalOpen] = useState(false);
+  const [isLoveJazGuideModalOpen, setIsLoveJazGuideModalOpen] = useState(false);
 
   // SVG ref for 4K / High-Res exports
   const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
@@ -651,7 +652,8 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
         onExportJson={() => downloadTreeAsJson(tree)}
         onOpenShare={() => setIsShareModalOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
-        onOpenDeployGuide={() => setIsDeployGuideModalOpen(true)}
+        onOpenDeployGuide={() => setIsLoveJazGuideModalOpen(true)}
+        onOpenLoveJazGuide={() => setIsLoveJazGuideModalOpen(true)}
       />
 
       {/* Main Pedigree Tree Canvas */}
@@ -740,9 +742,12 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
         onImportJson={handleImportJson}
       />
 
-      <DeployGuideModal
-        isOpen={isDeployGuideModalOpen}
-        onClose={() => setIsDeployGuideModalOpen(false)}
+      <LoveJazGuideModal
+        isOpen={isLoveJazGuideModalOpen || isDeployGuideModalOpen}
+        onClose={() => {
+          setIsLoveJazGuideModalOpen(false);
+          setIsDeployGuideModalOpen(false);
+        }}
       />
     </div>
   );

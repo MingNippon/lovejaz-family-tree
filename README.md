@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/Languages-6_Supported-rose?style=flat-square" alt="6 Languages" />
   <img src="https://img.shields.io/badge/Hosting-100%25_Free_Forever-emerald?style=flat-square" alt="100% Free Forever" />
   <img src="https://img.shields.io/badge/Zero_Cost-Serverless-purple?style=flat-square" alt="Serverless" />
-  <img src="https://img.shields.io/badge/Tests-223_Passing-brightgreen?style=flat-square" alt="Tests 223 Passing" />
+  <img src="https://img.shields.io/badge/Tests-236_Passing-brightgreen?style=flat-square" alt="Tests 236 Passing" />
 </p>
 
 ---
@@ -65,6 +65,13 @@ LoveJaz includes complete, native translations for 6 languages:
 - 🇻🇳 **Vietnamese (Tiếng Việt)** (`vi`)
 
 Switch languages instantly in the header without losing any tree progress or active edits.
+
+### 💖 Love Jaz Guide — User Manual v1.0
+A dedicated in-app wisdom guide celebrating the love of Emu & Jazmine (The Palomar Heritage):
+- **22 Everyday Situations**: Concrete guidance on *What to do 💖* and *What NOT to do ❌* covering morning routines, exams, tiredness, reassurance, jealousy, forgiveness, gifts, and building a shared future.
+- **The 4 Rules / Pillars**: $\text{Love} = \text{Affection} + \text{Trust} + \text{Boundaries} + \text{Independence}$.
+- **Instant Search**: Real-time keyword filter across all 22 situations.
+- **Built-in Deployment Guide**: Integrated tab containing step-by-step guides for zero-cost deployment on Vercel, Cloudflare Pages, and GitHub Pages.
 
 ---
 

@@ -9,6 +9,10 @@ export const vi: TranslationDictionary = {
   shareLink: 'Chia sẻ liên kết',
   exportImage: 'Xuất hình ảnh',
   deployGuide: 'Hướng dẫn triển khai',
+  loveJazGuide: 'Hướng dẫn Love Jaz',
+  loveJazGuideTitle: '💖 Hướng dẫn cách yêu Jaz — Cẩm nang v1.0',
+  userManualTab: '💖 Cách yêu thương Jaz',
+  deployGuideTab: '🚀 Hướng dẫn triển khai miễn phí',
   language: 'Ngôn ngữ',
 
   // Pedigree Symbols & Roles

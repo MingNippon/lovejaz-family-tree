@@ -9,6 +9,10 @@ export const zh: TranslationDictionary = {
   shareLink: '分享链接',
   exportImage: '导出图表',
   deployGuide: '部署指南',
+  loveJazGuide: 'Love Jaz 指南',
+  loveJazGuideTitle: '💖 如何爱 Jaz — 使用手册 v1.0',
+  userManualTab: '💖 如何关爱 Jaz',
+  deployGuideTab: '🚀 免费全球一键部署',
   language: '语言',
 
   // Pedigree Symbols & Roles

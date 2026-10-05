@@ -320,7 +320,7 @@ describe('LoveJaz App Component Integration Rendering', () => {
     expect(html).toContain('The Palomar Family Heritage');
   });
 
-  it('renders header action buttons (Sample, New, Import, Export, Share, Deploy)', () => {
+  it('renders header action buttons (Sample, New, Import, Export, Share, Love Jaz Guide)', () => {
     const html = renderToString(<App />);
     expect(html).toContain('data-testid="header-sample-tree-btn"');
     expect(html).toContain('data-testid="header-new-tree-btn"');
@@ -328,7 +328,7 @@ describe('LoveJaz App Component Integration Rendering', () => {
     expect(html).toContain('data-testid="header-export-json-btn"');
     expect(html).toContain('data-testid="header-share-btn"');
     expect(html).toContain('data-testid="header-export-image-btn"');
-    expect(html).toContain('data-testid="header-deploy-guide-btn"');
+    expect(html).toContain('data-testid="header-love-jaz-guide-btn"');
     expect(html).toContain('data-testid="header-language-selector"');
   });
 

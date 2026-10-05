@@ -9,6 +9,10 @@ export const en: TranslationDictionary = {
   shareLink: 'Share Link',
   exportImage: 'Export',
   deployGuide: 'Deploy Guide',
+  loveJazGuide: 'Love Jaz Guide',
+  loveJazGuideTitle: '💖 How to Love Jaz — User Manual v1.0',
+  userManualTab: '💖 How to Love Jaz',
+  deployGuideTab: '🚀 Free Global Deployment',
   language: 'Language',
 
   // Pedigree Symbols & Roles

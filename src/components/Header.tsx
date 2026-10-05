@@ -5,10 +5,10 @@ import {
   Download,
   Share2,
   Image as ImageIcon,
-  Globe,
   ChevronDown,
   Check,
   BookOpen,
+  Heart,
 } from 'lucide-react';
 import { FamilyTreeData } from '../types/family';
 import { useI18n } from '../i18n';
@@ -27,6 +27,7 @@ export interface HeaderProps {
   onOpenShare?: () => void;
   onOpenExport?: () => void;
   onOpenDeployGuide?: () => void;
+  onOpenLoveJazGuide?: () => void;
   className?: string;
 }
 
@@ -43,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenShare,
   onOpenExport,
   onOpenDeployGuide,
+  onOpenLoveJazGuide,
   className = '',
 }) => {
   const { currentLanguage, setLanguage, t, LANGUAGES } = useI18n();
@@ -305,16 +307,16 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{t('exportImage') || 'Export'}</span>
           </button>
 
-          {/* Free Deploy Guide */}
+          {/* Love Jaz Guide (How to Love Jaz Manual v1.0 & Free Deployment) */}
           <button
             type="button"
-            data-testid="header-deploy-guide-btn"
-            onClick={onOpenDeployGuide}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/30 transition-all"
-            title="100% Free Forever deployment guide (Vercel, Cloudflare, GitHub)"
+            data-testid="header-love-jaz-guide-btn"
+            onClick={onOpenLoveJazGuide || onOpenDeployGuide}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-500/30 transition-all shadow-sm"
+            title="💖 How to Love Jaz — User Manual v1.0 & Deployment Guide"
           >
-            <Globe className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden md:inline">{t('deployGuide') || 'Deploy'}</span>
+            <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-500/20" />
+            <span className="hidden md:inline">{t('loveJazGuide') || 'Love Jaz Guide'}</span>
           </button>
 
           {/* 6-Language Dropdown Switcher */}
