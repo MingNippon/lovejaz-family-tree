@@ -417,17 +417,11 @@ describe('LoveJazGuideModal Component Rendering & User Manual', () => {
     expect(html).toContain('Love = Affection + Trust + Boundaries + Independence');
   });
 
-  it('renders navigation tabs for both Manual and Deployment guide', () => {
+  it('renders search input and situation counter in LoveJazGuideModal', () => {
     const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} />);
-    expect(html).toContain('data-testid="guide-tab-manual"');
-    expect(html).toContain('data-testid="guide-tab-deploy"');
-  });
-
-  it('renders deployment guide when initialTab is deploy', () => {
-    const html = renderToString(<LoveJazGuideModal isOpen={true} onClose={vi.fn()} initialTab="deploy" />);
-    expect(html).toContain('data-testid="deploy-guide-content"');
-    expect(html).toContain('data-testid="deploy-tab-vercel"');
-    expect(html).toContain('data-testid="deploy-tab-cloudflare"');
+    expect(html).toContain('data-testid="manual-search-input"');
+    expect(html).toContain('22');
+    expect(html).toContain('Palomar Heritage');
   });
 
   it('renders localized modal title in Vietnamese when wrapped in I18nProvider', () => {

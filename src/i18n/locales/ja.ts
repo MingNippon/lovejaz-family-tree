@@ -64,12 +64,22 @@ export const ja: TranslationDictionary = {
   themeNavy: 'エレガント・ネイビー＆ゴールド（ブルー）',
   themeDark: 'ダーク・スタジオ（ダーク）',
   themePink: 'ロマンティック・ピンク LoveJaz（ハート）',
-  themeLight: 'ライト',
-  themeDarkShort: 'ダーク',
-  themePinkShort: 'ピンク（ハート）',
-  themeNavyShort: 'ネイビーブルー',
+  themeLight: 'クリーンライト',
+  themeDarkShort: 'ダークスタジオ',
+  themePinkShort: 'ロマンチックピンク',
+  themeNavyShort: 'ロイヤルネイビー',
   themeVintageShort: 'ヴィンテージ',
   themeSelector: 'テーマ',
+  themeCountBadge: '5つのテーマ',
+  themeHeartsBadge: '舞うハート',
+  themePinkDesc: 'ロマンチックな輝きと舞い上がるハート',
+  themeDarkDesc: '洗練されたチャコールとネオンの輝き',
+  themeLightDesc: '清潔感のあるモダンでシンプルな白',
+  themeNavyDesc: '優雅な王室ネイビーと金色のアクセント',
+  themeVintageDesc: 'アンティーク羊皮紙とセピアインク',
+
+  // Love Jaz Guide
+  loveJazGuideDesc: '22の状況対応と、永遠の愛を築くための4つの柱。',
 
   // Export Modal
   exportTitle: '家系図のエクスポート',

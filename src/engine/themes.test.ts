@@ -759,6 +759,34 @@ describe('ThemeSelector Component', () => {
     expect(html).toContain('data-testid="theme-selector-button"');
   });
 
+  it('renders localized trigger title in English and Vietnamese', () => {
+    const enHtml = renderToString(
+      React.createElement(
+        ThemeProvider,
+        null,
+        React.createElement(
+          I18nProvider,
+          { initialLanguage: 'en' },
+          React.createElement(ThemeSelector, { compact: false })
+        )
+      )
+    );
+    expect(enHtml).toContain('Theme:');
+
+    const viHtml = renderToString(
+      React.createElement(
+        ThemeProvider,
+        null,
+        React.createElement(
+          I18nProvider,
+          { initialLanguage: 'vi' },
+          React.createElement(ThemeSelector, { compact: false })
+        )
+      )
+    );
+    expect(viHtml).toContain('Giao diện:');
+  });
+
   it('renders compact theme selector trigger', () => {
     const html = renderToString(
       React.createElement(

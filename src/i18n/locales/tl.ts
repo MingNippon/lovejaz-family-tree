@@ -65,11 +65,21 @@ export const tl: TranslationDictionary = {
   themeDark: 'Madilim na Studio',
   themePink: 'Romantikong Rosas LoveJaz (Mga Puso)',
   themeLight: 'Maliwanag',
-  themeDarkShort: 'Madilim',
-  themePinkShort: 'Theme Rosas (Puso)',
-  themeNavyShort: 'Theme Asul',
-  themeVintageShort: 'Pergamino',
+  themeDarkShort: 'Madilim na Studio',
+  themePinkShort: 'Matingkad na Pink',
+  themeNavyShort: 'Asul na Navy',
+  themeVintageShort: 'Sinaunang Vintage',
   themeSelector: 'Tema',
+  themeCountBadge: '5 Tema',
+  themeHeartsBadge: 'Lumilipad na Puso',
+  themePinkDesc: 'Romantikong liwanag at lumilipad na puso',
+  themeDarkDesc: 'Madilim na studio at neon contrast',
+  themeLightDesc: 'Malinis, elegante at moderno',
+  themeNavyDesc: 'Maharlikang navy at gintong linya',
+  themeVintageDesc: 'Sinaunang pergamino at sepia ink',
+
+  // Love Jaz Guide
+  loveJazGuideDesc: 'Ang 22 sitwasyon sa relasyon at 4 na haligi ng panghabang-buhay na pag-ibig.',
 
   // Export Modal
   exportTitle: 'I-export ang Punongangkan',

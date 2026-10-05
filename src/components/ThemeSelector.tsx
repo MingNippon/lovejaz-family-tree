@@ -18,7 +18,8 @@ export interface ThemeOption {
   id: VisualThemeId;
   labelKey: string;
   defaultLabel: string;
-  subtitle: string;
+  subtitleKey: string;
+  defaultSubtitle: string;
   icon: React.ReactNode;
   bgPreview: string;
   accentPreview: string;
@@ -29,8 +30,9 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'pink',
     labelKey: 'themePinkShort',
-    defaultLabel: 'Hồng LoveJaz',
-    subtitle: 'Lãng mạn & Trái tim bay',
+    defaultLabel: 'Romantic Pink',
+    subtitleKey: 'themePinkDesc',
+    defaultSubtitle: 'Romantic velvet & floating hearts',
     icon: <Heart className="w-4 h-4 text-rose-400 fill-rose-500/20" />,
     bgPreview: '#1A0714',
     accentPreview: '#F43F5E',
@@ -39,8 +41,9 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'dark',
     labelKey: 'themeDarkShort',
-    defaultLabel: 'Tối Studio',
-    subtitle: 'Huyền bí & Neon sáng',
+    defaultLabel: 'Dark Studio',
+    subtitleKey: 'themeDarkDesc',
+    defaultSubtitle: 'Charcoal studio & neon glow',
     icon: <Moon className="w-4 h-4 text-sky-400" />,
     bgPreview: '#111827',
     accentPreview: '#38BDF8',
@@ -48,8 +51,9 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'minimalist',
     labelKey: 'themeLight',
-    defaultLabel: 'Sáng Tối Giản',
-    subtitle: 'Thanh lịch & Hiện đại',
+    defaultLabel: 'Clean Light',
+    subtitleKey: 'themeLightDesc',
+    defaultSubtitle: 'Clean, elegant & modern',
     icon: <Sun className="w-4 h-4 text-amber-500" />,
     bgPreview: '#F8FAFC',
     accentPreview: '#3B82F6',
@@ -57,8 +61,9 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'navy',
     labelKey: 'themeNavyShort',
-    defaultLabel: 'Xanh Dương',
-    subtitle: 'Navy Hoàng Gia & Ánh Vàng',
+    defaultLabel: 'Regal Navy',
+    subtitleKey: 'themeNavyDesc',
+    defaultSubtitle: 'Regal navy & golden accents',
     icon: <Compass className="w-4 h-4 text-amber-400" />,
     bgPreview: '#0B132B',
     accentPreview: '#D4AF37',
@@ -66,8 +71,9 @@ export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'vintage',
     labelKey: 'themeVintageShort',
-    defaultLabel: 'Cổ Điển',
-    subtitle: 'Giấy Cổ & Mực Nâu Sepia',
+    defaultLabel: 'Royal Vintage',
+    subtitleKey: 'themeVintageDesc',
+    defaultSubtitle: 'Antique parchment & sepia ink',
     icon: <Scroll className="w-4 h-4 text-amber-600" />,
     bgPreview: '#F5F0E6',
     accentPreview: '#52432D',
@@ -123,7 +129,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             ? 'bg-[#EFE7D8] text-[#52432D] border-[#746049]/40 hover:bg-[#EAE0CF]'
             : 'bg-slate-800/80 text-slate-200 border-slate-700/80 hover:bg-slate-700/80 hover:text-white'
         }`}
-        title={`Theme: ${t(activeOption.labelKey) || activeOption.defaultLabel}`}
+        title={`${t('theme') || 'Theme'}: ${t(activeOption.labelKey) || activeOption.defaultLabel}`}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -151,7 +157,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -6 }}
             transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-            className={`absolute right-0 mt-2 w-60 rounded-2xl border shadow-2xl p-1.5 z-50 backdrop-blur-xl ${
+            className={`absolute right-0 mt-2 w-64 rounded-2xl border shadow-2xl p-1.5 z-50 backdrop-blur-xl ${
               theme === 'pink'
                 ? 'bg-[#220B1C]/95 border-rose-500/30 shadow-rose-950/80 text-rose-100'
                 : theme === 'minimalist'
@@ -166,10 +172,10 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             <div className="px-3 py-1.5 mb-1 border-b border-white/10 flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1.5">
                 <Palette className="w-3 h-3" />
-                {t('themeSelector') || 'Giao diện'}
+                {t('themeSelector') || 'Theme'}
               </span>
               <span className="text-[10px] px-1.5 py-0.2 rounded-full font-mono bg-white/10 opacity-70">
-                5 Themes
+                {t('themeCountBadge') || '5 Themes'}
               </span>
             </div>
 
@@ -220,13 +226,13 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                             {t(opt.labelKey) || opt.defaultLabel}
                           </span>
                           {opt.hasHearts && (
-                            <span className="text-[9px] px-1 py-0.2 rounded bg-rose-500/30 text-rose-200 font-normal">
-                              💖 Trái tim
+                            <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-500/30 text-rose-200 font-normal">
+                              💖 {t('themeHeartsBadge') || 'Hearts'}
                             </span>
                           )}
                         </div>
                         <span className="text-[10px] opacity-60 font-normal">
-                          {opt.subtitle}
+                          {t(opt.subtitleKey) || opt.defaultSubtitle}
                         </span>
                       </div>
                     </div>

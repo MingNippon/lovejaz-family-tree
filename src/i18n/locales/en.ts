@@ -64,12 +64,22 @@ export const en: TranslationDictionary = {
   themeNavy: 'Elegant Navy & Gold (Blue)',
   themeDark: 'Dark Studio (Dark)',
   themePink: 'Romantic Pink LoveJaz (Hearts)',
-  themeLight: 'Light',
-  themeDarkShort: 'Dark',
+  themeLight: 'Clean Light',
+  themeDarkShort: 'Dark Studio',
   themePinkShort: 'Romantic Pink',
-  themeNavyShort: 'Navy Blue',
-  themeVintageShort: 'Vintage',
+  themeNavyShort: 'Regal Navy',
+  themeVintageShort: 'Royal Vintage',
   themeSelector: 'Theme',
+  themeCountBadge: '5 Themes',
+  themeHeartsBadge: 'Floating Hearts',
+  themePinkDesc: 'Romantic velvet & floating hearts',
+  themeDarkDesc: 'Charcoal studio & neon glow',
+  themeLightDesc: 'Clean, elegant & modern',
+  themeNavyDesc: 'Regal navy & golden accents',
+  themeVintageDesc: 'Antique parchment & sepia ink',
+
+  // Love Jaz Guide
+  loveJazGuideDesc: 'The 22 relationship situations & the 4 pillars of lasting love.',
 
   // Export Modal
   exportTitle: 'Export Family Tree',

@@ -64,12 +64,22 @@ export const vi: TranslationDictionary = {
   themeNavy: 'Xanh Dương Navy & Ánh Vàng',
   themeDark: 'Tối Studio Huyền Bí',
   themePink: 'Hồng Lãng Mạn LoveJaz (Trái Tim)',
-  themeLight: 'Giao diện Sáng',
-  themeDarkShort: 'Giao diện Tối',
-  themePinkShort: 'Theme Hồng (Trái Tim)',
-  themeNavyShort: 'Theme Xanh Dương',
-  themeVintageShort: 'Theme Cổ Điển',
+  themeLight: 'Sáng Tối Giản',
+  themeDarkShort: 'Tối Studio',
+  themePinkShort: 'Hồng LoveJaz',
+  themeNavyShort: 'Xanh Dương',
+  themeVintageShort: 'Cổ Điển',
   themeSelector: 'Giao diện',
+  themeCountBadge: '5 Giao diện',
+  themeHeartsBadge: 'Trái tim bay',
+  themePinkDesc: 'Lãng mạn & trái tim bay lung linh',
+  themeDarkDesc: 'Huyền bí & ánh sáng neon tương phản',
+  themeLightDesc: 'Thanh lịch, hiện đại & sáng rõ',
+  themeNavyDesc: 'Navy hoàng gia & viền ánh vàng',
+  themeVintageDesc: 'Giấy cổ hoàng gia & mực nâu sepia',
+
+  // Love Jaz Guide
+  loveJazGuideDesc: '22 tình huống thực tế & 4 nguyên tắc vàng xây đắp tình yêu bền vững.',
 
   // Export Modal
   exportTitle: 'Xuất cây phả hệ',

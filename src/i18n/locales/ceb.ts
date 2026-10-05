@@ -65,11 +65,21 @@ export const ceb: TranslationDictionary = {
   themeDark: 'Ngitngit nga Studio',
   themePink: 'Makahanggang Rosas LoveJaz (Kasingkasing)',
   themeLight: 'Hayag',
-  themeDarkShort: 'Ngitngit',
-  themePinkShort: 'Theme Rosas (Kasingkasing)',
-  themeNavyShort: 'Theme Asul',
-  themeVintageShort: 'Kinaraan',
+  themeDarkShort: 'Ngitngit nga Studio',
+  themePinkShort: 'Hayag nga Pink',
+  themeNavyShort: 'Navy Blue',
+  themeVintageShort: 'Karaang Vintage',
   themeSelector: 'Tema',
+  themeCountBadge: '5 ka Tema',
+  themeHeartsBadge: 'Naglupad nga Kasingkasing',
+  themePinkDesc: 'Romantikong kahayag ug naglupad nga kasingkasing',
+  themeDarkDesc: 'Ngitngit nga studio ug hayag nga neon',
+  themeLightDesc: 'Hapsay, elegante ug moderno',
+  themeNavyDesc: 'Harianong navy ug bulawang linya',
+  themeVintageDesc: 'Karaang pergamino ug sepia nga tinta',
+
+  // Love Jaz Guide
+  loveJazGuideDesc: 'Ang 22 ka sitwasyon sa relasyon ug 4 ka haligi sa malungtarong gugma.',
 
   // Export Modal
   exportTitle: 'I-export ang Kaliwat sa Pamilya',

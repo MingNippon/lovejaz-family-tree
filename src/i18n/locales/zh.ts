@@ -64,12 +64,22 @@ export const zh: TranslationDictionary = {
   themeNavy: '典雅海军蓝与金（蓝色）',
   themeDark: '深色演播室（暗黑）',
   themePink: '浪漫粉红 LoveJaz（爱心）',
-  themeLight: '明亮风格',
-  themeDarkShort: '暗黑风格',
-  themePinkShort: '粉红爱心',
-  themeNavyShort: '海军蓝',
-  themeVintageShort: '羊皮纸',
+  themeLight: '极简明亮',
+  themeDarkShort: '暗夜工坊',
+  themePinkShort: '浪漫粉红',
+  themeNavyShort: '皇家藏青',
+  themeVintageShort: '古典羊皮纸',
   themeSelector: '主题风格',
+  themeCountBadge: '5 款主题',
+  themeHeartsBadge: '漂浮爱心',
+  themePinkDesc: '浪漫质感与漫天漂浮爱心',
+  themeDarkDesc: '深色工坊与鲜明霓虹对比',
+  themeLightDesc: '优雅纯净、现代明亮',
+  themeNavyDesc: '尊贵皇家藏青与璀璨金边',
+  themeVintageDesc: '古典欧式羊皮纸与复古墨色',
+
+  // Love Jaz Guide
+  loveJazGuideDesc: '22 个真实相处情境与建立长久相伴的 4 大支柱。',
 
   // Export Modal
   exportTitle: '导出家谱图',
