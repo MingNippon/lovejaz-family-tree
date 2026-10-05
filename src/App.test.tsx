@@ -141,13 +141,13 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
     });
 
     it('automatically creates partner and union if parent has no existing union', () => {
-      const unmarriedId = 'p_gen2_4'; // Akari Palomar (unmarried)
+      const unmarriedId = 'p_gen3_1'; // Rin Palomar (unmarried)
       const initialPersons = Object.keys(sampleTree.persons).length;
       const initialUnions = Object.keys(sampleTree.unions).length;
 
       const { newTree, childId } = addChildToTree(sampleTree, unmarriedId, {
-        name: 'Akari Jr.',
-        gender: 'male',
+        name: 'Rin Jr.',
+        gender: 'female',
         birthYear: 2054,
       });
 
@@ -156,7 +156,7 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
       expect(Object.keys(newTree.unions).length).toBe(initialUnions + 1);
 
       const child = newTree.persons[childId];
-      expect(child.name).toBe('Akari Jr.');
+      expect(child.name).toBe('Rin Jr.');
 
       // Find the created union containing unmarriedId and childId
       const newUnion = Object.values(newTree.unions).find(
@@ -299,7 +299,7 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
     });
 
     it('returns childCount 0 and hasSpouse false for unmarried person', () => {
-      const info = getPersonRelationsInfo(sampleTree, 'p_gen2_3'); // Rafael
+      const info = getPersonRelationsInfo(sampleTree, 'p_gen3_1'); // Rin Palomar
       expect(info.hasSpouse).toBe(false);
       expect(info.childCount).toBe(0);
     });

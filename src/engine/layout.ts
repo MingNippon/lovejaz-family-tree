@@ -206,12 +206,22 @@ export function computePedigreeLayout(
     }[] = [];
 
     if (union.childrenIds.length > 0) {
+      const processedChildren = new Set<string>();
       union.childrenIds.forEach((childId) => {
+        if (processedChildren.has(childId)) return;
+        processedChildren.add(childId);
+
         // Find if this child is married to someone who hasn't been placed yet
         const childUnion = Object.values(tree.unions).find(
           (u) =>
-            (u.partner1Id === childId && u.partner2Id && !positionedPersons.has(u.partner2Id)) ||
-            (u.partner2Id === childId && u.partner1Id && !positionedPersons.has(u.partner1Id))
+            (u.partner1Id === childId &&
+              u.partner2Id &&
+              !positionedPersons.has(u.partner2Id) &&
+              !processedChildren.has(u.partner2Id)) ||
+            (u.partner2Id === childId &&
+              u.partner1Id &&
+              !positionedPersons.has(u.partner1Id) &&
+              !processedChildren.has(u.partner1Id))
         );
         const spouseId = childUnion
           ? childUnion.partner1Id === childId
@@ -220,6 +230,9 @@ export function computePedigreeLayout(
           : undefined;
 
         if (spouseId && tree.persons[spouseId]) {
+          if (union.childrenIds.includes(spouseId)) {
+            processedChildren.add(spouseId);
+          }
           childUnits.push({
             primaryChildId: childId,
             spouseId,

@@ -331,11 +331,8 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
         (u) => u.partner1Id === tree.rootPersonId || u.partner2Id === tree.rootPersonId
       )!;
 
-      const [c1Id, c2Id] = gen1Union.childrenIds;
-      const union1 = Object.values(tree.unions).find((u) => u.partner1Id === c1Id)!;
-      const union2 = Object.values(tree.unions).find((u) => u.partner1Id === c2Id)!;
-
-      const grandchildrenIds = [...union1.childrenIds, ...union2.childrenIds];
+      const gen2Unions = Object.values(tree.unions).filter((u) => u.id !== gen1Union.id);
+      const grandchildrenIds = Array.from(new Set(gen2Unions.flatMap((u) => u.childrenIds)));
       expect(grandchildrenIds.length).toBe(4);
 
       const grandchildren = grandchildrenIds.map((id) => tree.persons[id]);
@@ -370,8 +367,8 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
       // Bounds are positive and valid
       expect(layout.bounds.width).toBeGreaterThan(0);
       expect(layout.bounds.height).toBeGreaterThan(0);
-      expect(layout.marriages.length).toBe(1); // Emu + Jazmine
-      expect(layout.branches.length).toBe(3); // Gen 1, Haru, Kiyo
+      expect(layout.marriages.length).toBe(3); // Emu + Jazmine, Kiyo + Yuki, Akari + Aiko
+      expect(layout.branches.length).toBe(4); // Gen 1, Haru, Kiyo + Yuki, Akari + Aiko
     });
   });
 });

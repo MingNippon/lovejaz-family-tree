@@ -55,7 +55,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         gender: 'male',
         birthYear: 2026,
         title: 'Eldest Son',
-        notes: 'First child of Emu & Jazmine; father of Rin & Xyril.',
+        notes: 'First child of Emu & Jazmine; father of Rin.',
         avatarColor: '#3B82F6',
       },
       p_gen2_2: {
@@ -64,7 +64,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         gender: 'male',
         birthYear: 2028,
         title: 'Second Son',
-        notes: 'Second child; father of Darel & Minh.',
+        notes: 'Second child; father of Darel & Minh with Yuki.',
         avatarColor: '#3B82F6',
       },
       p_gen2_3: {
@@ -73,7 +73,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         gender: 'female',
         birthYear: 2030,
         title: 'Eldest Daughter',
-        notes: 'Loving aunt, biochemist, and artist.',
+        notes: 'Eldest daughter; mother of Darel & Minh with Kiyo.',
         avatarColor: '#EC4899',
       },
       p_gen2_4: {
@@ -82,7 +82,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         gender: 'male',
         birthYear: 2032,
         title: 'Third Son',
-        notes: 'Visual artist, photographer, and world traveler.',
+        notes: 'Third son; father of Xyril with Aiko.',
         avatarColor: '#3B82F6',
       },
       p_gen2_5: {
@@ -91,7 +91,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         gender: 'female',
         birthYear: 2035,
         title: 'Youngest Daughter',
-        notes: 'Youngest sister, writer, and youth mentor.',
+        notes: 'Youngest daughter; mother of Xyril with Akari.',
         avatarColor: '#EC4899',
       },
 
@@ -113,7 +113,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         birthYear: 2048,
         age: 8,
         title: 'Granddaughter',
-        notes: 'Daughter of Haru Palomar; swimmer and creative artist.',
+        notes: 'Daughter of Akari & Aiko Palomar; swimmer and creative artist.',
         avatarColor: '#EC4899',
       },
       p_gen3_3: {
@@ -123,7 +123,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         birthYear: 2050,
         age: 6,
         title: 'Granddaughter',
-        notes: 'Daughter of Kiyo Palomar; creative dancer.',
+        notes: 'Daughter of Kiyo & Yuki Palomar; creative dancer.',
         avatarColor: '#EC4899',
       },
       p_gen3_4: {
@@ -133,7 +133,7 @@ export function getSampleFamilyTree(): FamilyTreeData {
         birthYear: 2052,
         age: 4,
         title: 'Grandson',
-        notes: 'Son of Kiyo Palomar; curious explorer and robotics fan.',
+        notes: 'Son of Kiyo & Yuki Palomar; curious explorer and robotics fan.',
         avatarColor: '#3B82F6',
       },
     },
@@ -144,17 +144,23 @@ export function getSampleFamilyTree(): FamilyTreeData {
         partner2Id: 'p_gen1_2',
         childrenIds: ['p_gen2_1', 'p_gen2_2', 'p_gen2_3', 'p_gen2_4', 'p_gen2_5'],
       },
-      u_gen2_1: {
-        id: 'u_gen2_1',
+      u_gen2_haru: {
+        id: 'u_gen2_haru',
         partner1Id: 'p_gen2_1',
         partner2Id: '',
-        childrenIds: ['p_gen3_1', 'p_gen3_2'],
+        childrenIds: ['p_gen3_1'],
       },
-      u_gen2_2: {
-        id: 'u_gen2_2',
+      u_gen2_kiyo_yuki: {
+        id: 'u_gen2_kiyo_yuki',
         partner1Id: 'p_gen2_2',
-        partner2Id: '',
+        partner2Id: 'p_gen2_3',
         childrenIds: ['p_gen3_3', 'p_gen3_4'],
+      },
+      u_gen2_akari_aiko: {
+        id: 'u_gen2_akari_aiko',
+        partner1Id: 'p_gen2_4',
+        partner2Id: 'p_gen2_5',
+        childrenIds: ['p_gen3_2'],
       },
     },
   };
