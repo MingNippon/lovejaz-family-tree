@@ -92,4 +92,15 @@ export const zh: TranslationDictionary = {
   newTreeTitle: '我的家族谱系',
   resetTreeConfirm: '创建新的家谱？',
   resetTreeDesc: '确定吗？当前未保存的更改将被替换。',
+
+  // Spacing & Drag Stretch
+  spacing: '间距',
+  adjustSpacing: '调整间距',
+  horizontalSpacing: '左右横向间距',
+  verticalSpacing: '上下世代间距',
+  dragToStretch: '拖动以拉伸间距',
+  compactSpacing: '紧凑',
+  defaultSpacing: '标准',
+  spaciousSpacing: '宽松',
+  resetSpacing: '重置间距',
 };

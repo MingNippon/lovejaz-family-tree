@@ -429,4 +429,37 @@ describe('Canvas Component', () => {
 
     expect(html).toContain('transform="translate(120, -45) scale(1.5)"');
   });
+
+  it('renders interactive drag-to-stretch widget with horizontal, vertical, and 2D handles', () => {
+    const html = renderToString(
+      <I18nProvider>
+        <Canvas layout={sampleLayout} spacing={{ siblingGap: 100, generationHeight: 260 }} />
+      </I18nProvider>
+    );
+
+    expect(html).toContain('data-testid="canvas-stretch-widget"');
+    expect(html).toContain('data-testid="stretch-horizontal-handle"');
+    expect(html).toContain('100px');
+    expect(html).toContain('data-testid="stretch-vertical-handle"');
+    expect(html).toContain('260px');
+    expect(html).toContain('data-testid="stretch-2d-handle"');
+    expect(html).toContain('data-testid="stretch-reset-button"');
+  });
+
+  it('renders spacing button in floating controls', () => {
+    const html = renderToString(
+      <I18nProvider>
+        <FloatingControls
+          zoom={1.0}
+          onZoomIn={vi.fn()}
+          onZoomOut={vi.fn()}
+          onResetZoom={vi.fn()}
+          onFitView={vi.fn()}
+        />
+      </I18nProvider>
+    );
+
+    expect(html).toContain('data-testid="spacing-button"');
+  });
 });
+

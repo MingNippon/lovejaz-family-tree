@@ -77,6 +77,13 @@ export interface GenerationTier {
   height: number;
 }
 
+export interface LayoutSpacingOptions {
+  siblingGap?: number;
+  spouseGap?: number;
+  generationHeight?: number;
+  familyGap?: number;
+}
+
 export interface LayoutResult {
   nodes: Record<string, NodePosition>;
   marriages: MarriageLine[];

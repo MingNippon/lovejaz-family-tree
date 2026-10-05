@@ -1,8 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
+  Move,
+  ArrowLeftRight,
+  ArrowUpDown,
+  SlidersHorizontal,
+  RotateCcw,
+} from 'lucide-react';
+import {
   LayoutResult,
   MarriageLine,
   SiblingBranch,
+  LayoutSpacingOptions,
 } from '../types/family';
 import {
   GenerationRuler,
@@ -10,6 +18,13 @@ import {
   formatGenerationLabel,
 } from './GenerationRuler';
 import { FloatingControls } from './FloatingControls';
+import { useI18n } from '../i18n';
+import {
+  DEFAULT_SIBLING_GAP,
+  DEFAULT_GENERATION_HEIGHT,
+  DEFAULT_SPOUSE_GAP,
+  DEFAULT_FAMILY_GAP,
+} from '../engine/layout';
 
 export { romanNumeral, formatGenerationLabel };
 
@@ -40,6 +55,8 @@ export interface CanvasProps {
   autoFitOnMount?: boolean;
   minZoom?: number;
   maxZoom?: number;
+  spacing?: LayoutSpacingOptions;
+  onSpacingChange?: (spacing: LayoutSpacingOptions) => void;
 }
 
 export function clampZoom(scale: number, min = MIN_ZOOM, max = MAX_ZOOM): number {
@@ -118,7 +135,10 @@ export const Canvas: React.FC<CanvasProps> = ({
   autoFitOnMount = false,
   minZoom = MIN_ZOOM,
   maxZoom = MAX_ZOOM,
+  spacing,
+  onSpacingChange,
 }) => {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const internalSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -408,6 +428,134 @@ export const Canvas: React.FC<CanvasProps> = ({
     }
   };
 
+  // Spacing values and interactive drag-to-stretch handlers
+  const currentSiblingGap = spacing?.siblingGap ?? DEFAULT_SIBLING_GAP;
+  const currentGenHeight = spacing?.generationHeight ?? DEFAULT_GENERATION_HEIGHT;
+
+  const handleHorizontalPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+
+    const startX = e.clientX;
+    const initialSib = currentSiblingGap;
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      moveEvent.stopPropagation();
+      const deltaX = moveEvent.clientX - startX;
+      const newSib = Math.round(Math.min(Math.max(initialSib + deltaX * 0.75, 40), 240));
+      const newSpouse = Math.round(newSib * (80 / 90));
+      const newFamily = Math.round(newSib * (110 / 90));
+      onSpacingChange?.({
+        ...spacing,
+        siblingGap: newSib,
+        spouseGap: newSpouse,
+        familyGap: newFamily,
+        generationHeight: currentGenHeight,
+      });
+    };
+
+    const onPointerUp = (upEvent: PointerEvent) => {
+      try {
+        target.releasePointerCapture(upEvent.pointerId);
+      } catch {
+        // ignore
+      }
+      target.removeEventListener('pointermove', onPointerMove);
+      target.removeEventListener('pointerup', onPointerUp);
+    };
+
+    target.addEventListener('pointermove', onPointerMove);
+    target.addEventListener('pointerup', onPointerUp);
+  };
+
+  const handleVerticalPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+
+    const startY = e.clientY;
+    const initialHeight = currentGenHeight;
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      moveEvent.stopPropagation();
+      const deltaY = moveEvent.clientY - startY;
+      const newHeight = Math.round(Math.min(Math.max(initialHeight + deltaY * 0.75, 180), 400));
+      onSpacingChange?.({
+        ...spacing,
+        generationHeight: newHeight,
+      });
+    };
+
+    const onPointerUp = (upEvent: PointerEvent) => {
+      try {
+        target.releasePointerCapture(upEvent.pointerId);
+      } catch {
+        // ignore
+      }
+      target.removeEventListener('pointermove', onPointerMove);
+      target.removeEventListener('pointerup', onPointerUp);
+    };
+
+    target.addEventListener('pointermove', onPointerMove);
+    target.addEventListener('pointerup', onPointerUp);
+  };
+
+  const handle2DPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const target = e.currentTarget;
+    target.setPointerCapture(e.pointerId);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialSib = currentSiblingGap;
+    const initialHeight = currentGenHeight;
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      moveEvent.stopPropagation();
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      const newSib = Math.round(Math.min(Math.max(initialSib + deltaX * 0.75, 40), 240));
+      const newSpouse = Math.round(newSib * (80 / 90));
+      const newFamily = Math.round(newSib * (110 / 90));
+      const newHeight = Math.round(Math.min(Math.max(initialHeight + deltaY * 0.75, 180), 400));
+
+      onSpacingChange?.({
+        siblingGap: newSib,
+        spouseGap: newSpouse,
+        familyGap: newFamily,
+        generationHeight: newHeight,
+      });
+    };
+
+    const onPointerUp = (upEvent: PointerEvent) => {
+      try {
+        target.releasePointerCapture(upEvent.pointerId);
+      } catch {
+        // ignore
+      }
+      target.removeEventListener('pointermove', onPointerMove);
+      target.removeEventListener('pointerup', onPointerUp);
+    };
+
+    target.addEventListener('pointermove', onPointerMove);
+    target.addEventListener('pointerup', onPointerUp);
+  };
+
+  const handleResetSpacing = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSpacingChange?.({
+      siblingGap: DEFAULT_SIBLING_GAP,
+      spouseGap: DEFAULT_SPOUSE_GAP,
+      familyGap: DEFAULT_FAMILY_GAP,
+      generationHeight: DEFAULT_GENERATION_HEIGHT,
+    });
+  };
+
   // Render Marriage Lines
   const renderMarriageLine = (marriage: MarriageLine) => {
     return (
@@ -579,6 +727,72 @@ export const Canvas: React.FC<CanvasProps> = ({
         </g>
       </svg>
 
+      {/* On-Canvas Interactive Drag-to-Stretch Widget */}
+      <div
+        data-testid="canvas-stretch-widget"
+        data-interactive="true"
+        className="absolute bottom-6 left-6 z-30 flex items-center gap-1.5 p-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-2xl shadow-2xl text-slate-200 select-none"
+      >
+        <div className="flex items-center gap-1.5 px-2 text-xs font-semibold text-rose-400">
+          <Move className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">{t('dragToStretch')}</span>
+        </div>
+
+        <div className="h-5 w-px bg-slate-700/60" />
+
+        {/* Horizontal Stretch Handle */}
+        <div
+          data-testid="stretch-horizontal-handle"
+          role="slider"
+          aria-label={t('horizontalSpacing')}
+          tabIndex={0}
+          onPointerDown={handleHorizontalPointerDown}
+          className="group flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-medium rounded-xl bg-slate-800/80 hover:bg-slate-700/90 active:bg-rose-950/40 active:border-rose-500 border border-transparent transition-all cursor-ew-resize select-none"
+          title={`${t('horizontalSpacing')}: ${t('dragToStretch')}`}
+        >
+          <ArrowLeftRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-400" />
+          <span className="text-slate-300 font-semibold">{`${currentSiblingGap}px`}</span>
+        </div>
+
+        {/* Vertical Stretch Handle */}
+        <div
+          data-testid="stretch-vertical-handle"
+          role="slider"
+          aria-label={t('verticalSpacing')}
+          tabIndex={0}
+          onPointerDown={handleVerticalPointerDown}
+          className="group flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-medium rounded-xl bg-slate-800/80 hover:bg-slate-700/90 active:bg-rose-950/40 active:border-rose-500 border border-transparent transition-all cursor-ns-resize select-none"
+          title={`${t('verticalSpacing')}: ${t('dragToStretch')}`}
+        >
+          <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-400" />
+          <span className="text-slate-300 font-semibold">{`${currentGenHeight}px`}</span>
+        </div>
+
+        {/* 2D Corner Drag Puck (stretches both simultaneously) */}
+        <div
+          data-testid="stretch-2d-handle"
+          role="slider"
+          aria-label={t('dragToStretch')}
+          tabIndex={0}
+          onPointerDown={handle2DPointerDown}
+          className="group relative flex items-center justify-center p-1.5 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 active:bg-rose-500/40 hover:text-rose-300 transition-all cursor-nwse-resize select-none"
+          title={`${t('dragToStretch')} (2D)`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-400" />
+        </div>
+
+        {/* Reset Spacing Button */}
+        <button
+          type="button"
+          data-testid="stretch-reset-button"
+          onClick={handleResetSpacing}
+          title={t('resetSpacing')}
+          className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 transition-colors"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
       {/* Floating Action Controls */}
       <FloatingControls
         zoom={currentTransform.scale}
@@ -594,6 +808,8 @@ export const Canvas: React.FC<CanvasProps> = ({
         canRedo={canRedo}
         onUndo={onUndo}
         onRedo={onRedo}
+        spacing={spacing}
+        onSpacingChange={onSpacingChange}
       />
     </div>
   );

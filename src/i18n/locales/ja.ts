@@ -92,4 +92,15 @@ export const ja: TranslationDictionary = {
   newTreeTitle: '私の家系図',
   resetTreeConfirm: '新しい家系図を作成しますか？',
   resetTreeDesc: '本当によろしいですか？現在の未保存の変更内容は上書きされます。',
+
+  // Spacing & Drag Stretch
+  spacing: '間隔',
+  adjustSpacing: '間隔を調整・拡張',
+  horizontalSpacing: '左右の間隔',
+  verticalSpacing: '上下の間隔（世代）',
+  dragToStretch: 'ドラッグして間隔を伸縮',
+  compactSpacing: 'コンパクト',
+  defaultSpacing: '標準',
+  spaciousSpacing: 'ゆったり',
+  resetSpacing: '間隔をリセット',
 };

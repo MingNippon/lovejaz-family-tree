@@ -92,4 +92,15 @@ export const tl: TranslationDictionary = {
   newTreeTitle: 'Ang Aking Punongangkan',
   resetTreeConfirm: 'Magsimula ng Bagong Puno?',
   resetTreeDesc: 'Sigurado ka ba? Ang anumang hindi na-save na pagbabago ay mapapalitan.',
+
+  // Spacing & Drag Stretch
+  spacing: 'Puwang',
+  adjustSpacing: 'Ayusin ang Puwang',
+  horizontalSpacing: 'Pahalang na Puwang',
+  verticalSpacing: 'Patayong Puwang (Henerasyon)',
+  dragToStretch: 'I-drag upang palawakin ang puwang',
+  compactSpacing: 'Siksik',
+  defaultSpacing: 'Karaniwan',
+  spaciousSpacing: 'Maluwang',
+  resetSpacing: 'I-reset ang Puwang',
 };

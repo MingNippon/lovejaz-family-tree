@@ -92,4 +92,15 @@ export const vi: TranslationDictionary = {
   newTreeTitle: 'Cây Phả Hệ Của Tôi',
   resetTreeConfirm: 'Tạo cây phả hệ mới?',
   resetTreeDesc: 'Bạn có chắc chắn không? Mọi thay đổi chưa lưu trên cây hiện tại sẽ bị thay thế.',
+
+  // Spacing & Drag Stretch
+  spacing: 'Khoảng cách',
+  adjustSpacing: 'Kéo giãn khoảng cách',
+  horizontalSpacing: 'Khoảng cách trái - phải',
+  verticalSpacing: 'Khoảng cách trên - xuống (Thế hệ)',
+  dragToStretch: 'Kéo thả để giãn khoảng cách',
+  compactSpacing: 'Gọn gàng',
+  defaultSpacing: 'Tiêu chuẩn',
+  spaciousSpacing: 'Rộng rãi',
+  resetSpacing: 'Đặt lại khoảng cách',
 };

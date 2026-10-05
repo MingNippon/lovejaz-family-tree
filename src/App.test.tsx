@@ -377,4 +377,13 @@ describe('LoveJaz App Component Integration Rendering', () => {
     expect(html).toContain('data-testid="header-container"');
     expect(html).toContain('data-testid="canvas-container"');
   });
+
+  it('renders interactive drag-to-stretch widget and spacing button in App', () => {
+    const html = renderToString(<App />);
+    expect(html).toContain('data-testid="canvas-stretch-widget"');
+    expect(html).toContain('data-testid="stretch-horizontal-handle"');
+    expect(html).toContain('data-testid="stretch-vertical-handle"');
+    expect(html).toContain('data-testid="stretch-2d-handle"');
+    expect(html).toContain('data-testid="spacing-button"');
+  });
 });

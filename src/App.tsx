@@ -9,8 +9,20 @@ import { ExportModal } from './components/ExportModal';
 import { ShareModal } from './components/ShareModal';
 import { DeployGuideModal } from './components/DeployGuideModal';
 
-import { FamilyTreeData, Person, Union, Gender } from './types/family';
-import { computePedigreeLayout } from './engine/layout';
+import {
+  FamilyTreeData,
+  Person,
+  Union,
+  Gender,
+  LayoutSpacingOptions,
+} from './types/family';
+import {
+  computePedigreeLayout,
+  DEFAULT_SIBLING_GAP,
+  DEFAULT_GENERATION_HEIGHT,
+  DEFAULT_SPOUSE_GAP,
+  DEFAULT_FAMILY_GAP,
+} from './engine/layout';
 import { getSampleFamilyTree } from './utils/sampleData';
 import {
   saveTreeToStorage,
@@ -350,8 +362,36 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
   // SVG ref for 4K / High-Res exports
   const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
 
+  // Layout Spacing state with localStorage persistence
+  const [spacing, setSpacing] = useState<LayoutSpacingOptions>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('lovejaz_spacing');
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return {
+      siblingGap: DEFAULT_SIBLING_GAP,
+      spouseGap: DEFAULT_SPOUSE_GAP,
+      familyGap: DEFAULT_FAMILY_GAP,
+      generationHeight: DEFAULT_GENERATION_HEIGHT,
+    };
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('lovejaz_spacing', JSON.stringify(spacing));
+      } catch {
+        // ignore
+      }
+    }
+  }, [spacing]);
+
   // Memoized Pedigree Layout calculation
-  const layout = useMemo(() => computePedigreeLayout(tree), [tree]);
+  const layout = useMemo(() => computePedigreeLayout(tree, spacing), [tree, spacing]);
 
   // Persist tree to browser localStorage upon any mutation
   useEffect(() => {
@@ -627,6 +667,8 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
           onUndo={handleUndo}
           onRedo={handleRedo}
           autoFitOnMount={true}
+          spacing={spacing}
+          onSpacingChange={setSpacing}
         >
           {/* Render all positioned person nodes */}
           {Object.values(tree.persons).map((person) => {

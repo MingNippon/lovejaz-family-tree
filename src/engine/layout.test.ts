@@ -213,4 +213,137 @@ describe('computePedigreeLayout', () => {
       });
     });
   });
+
+  it('guarantees clearance routing: sibling bar is strictly below parent label zone and above children', () => {
+    const mockTree: FamilyTreeData = {
+      version: '1.0',
+      title: 'Clearance Test',
+      rootPersonId: 'p1',
+      persons: {
+        p1: { id: 'p1', name: 'Father', gender: 'male', birthYear: 1960 },
+        p2: { id: 'p2', name: 'Mother', gender: 'female', birthYear: 1965 },
+        c1: { id: 'c1', name: 'Child 1', gender: 'male', birthYear: 1990 },
+      },
+      unions: {
+        u1: {
+          id: 'u1',
+          partner1Id: 'p1',
+          partner2Id: 'p2',
+          childrenIds: ['c1'],
+        },
+      },
+    };
+
+    const layout = computePedigreeLayout(mockTree);
+    const branch = layout.branches[0];
+    const parentY = layout.nodes['p1'].y;
+    const parentLabelBottom = parentY + NODE_SIZE + 68;
+    const childY = layout.nodes['c1'].y;
+
+    // Sibling bar (stemEndY) must be strictly below parent label zone
+    expect(branch.stemEndY).toBeGreaterThan(parentLabelBottom);
+    // Sibling bar must be strictly above the top edge of child node
+    expect(branch.stemEndY).toBeLessThan(childY);
+    // Child drop line connects from bar to top of child node
+    expect(branch.childDrops[0].topY).toBe(branch.stemEndY);
+    expect(branch.childDrops[0].bottomY).toBe(childY);
+  });
+
+  it('places married siblings immediately adjacent to their spouses without slicing across other siblings', () => {
+    const marriedSiblingsTree: FamilyTreeData = {
+      version: '1.0',
+      title: 'Married Siblings Test',
+      rootPersonId: 'p1',
+      persons: {
+        p1: { id: 'p1', name: 'Father', gender: 'male' },
+        p2: { id: 'p2', name: 'Mother', gender: 'female' },
+        c1: { id: 'c1', name: 'Child 1 (Married)', gender: 'male' },
+        c1_sp: { id: 'c1_sp', name: 'Spouse of Child 1', gender: 'female' },
+        c2: { id: 'c2', name: 'Child 2 (Single)', gender: 'female' },
+      },
+      unions: {
+        u_parents: {
+          id: 'u_parents',
+          partner1Id: 'p1',
+          partner2Id: 'p2',
+          childrenIds: ['c1', 'c2'],
+        },
+        u_c1: {
+          id: 'u_c1',
+          partner1Id: 'c1',
+          partner2Id: 'c1_sp',
+          childrenIds: [],
+        },
+      },
+    };
+
+    const layout = computePedigreeLayout(marriedSiblingsTree);
+
+    // c1 and c1_sp must be adjacent couple
+    const c1Pos = layout.nodes['c1'];
+    const c1SpPos = layout.nodes['c1_sp'];
+    const c2Pos = layout.nodes['c2'];
+
+    expect(c1Pos).toBeDefined();
+    expect(c1SpPos).toBeDefined();
+    expect(c2Pos).toBeDefined();
+
+    // c1 and c1_sp are adjacent
+    expect(c1SpPos.x).toBe(c1Pos.x + NODE_SIZE + 80); // DEFAULT_SPOUSE_GAP = 80
+    // c2 is placed after the family unit (c1 + c1_sp)
+    expect(c2Pos.x).toBeGreaterThan(c1SpPos.x);
+
+    // Marriage line between c1 and c1_sp is strictly 80px long
+    const c1Marriage = layout.marriages.find(m => m.id === 'u_c1');
+    expect(c1Marriage).toBeDefined();
+    expect(c1Marriage!.x2 - c1Marriage!.x1).toBe(80);
+  });
+
+  it('scales layout dynamically and synchronously when custom spacing options are provided', () => {
+    const simpleTree: FamilyTreeData = {
+      version: '1.0',
+      title: 'Spacing Test',
+      rootPersonId: 'p1',
+      persons: {
+        p1: { id: 'p1', name: 'Father', gender: 'male' },
+        p2: { id: 'p2', name: 'Mother', gender: 'female' },
+        c1: { id: 'c1', name: 'Son', gender: 'male' },
+        c2: { id: 'c2', name: 'Daughter', gender: 'female' },
+      },
+      unions: {
+        u1: {
+          id: 'u1',
+          partner1Id: 'p1',
+          partner2Id: 'p2',
+          childrenIds: ['c1', 'c2'],
+        },
+      },
+    };
+
+    const standardLayout = computePedigreeLayout(simpleTree);
+    const stretchedLayout = computePedigreeLayout(simpleTree, {
+      siblingGap: 160,
+      generationHeight: 320,
+      spouseGap: 120,
+    });
+
+    // Stretched generation height
+    const standardGenGap = standardLayout.nodes['c1'].y - standardLayout.nodes['p1'].y;
+    const stretchedGenGap = stretchedLayout.nodes['c1'].y - stretchedLayout.nodes['p1'].y;
+    expect(standardGenGap).toBe(240);
+    expect(stretchedGenGap).toBe(320);
+
+    // Stretched sibling gap
+    const standardSibGap = standardLayout.nodes['c2'].x - (standardLayout.nodes['c1'].x + NODE_SIZE);
+    const stretchedSibGap = stretchedLayout.nodes['c2'].x - (stretchedLayout.nodes['c1'].x + NODE_SIZE);
+    expect(standardSibGap).toBe(90);
+    expect(stretchedSibGap).toBe(160);
+
+    // Stretched spouse gap
+    const standardSpouseGap = standardLayout.nodes['p2'].x - (standardLayout.nodes['p1'].x + NODE_SIZE);
+    const stretchedSpouseGap = stretchedLayout.nodes['p2'].x - (stretchedLayout.nodes['p1'].x + NODE_SIZE);
+    expect(standardSpouseGap).toBe(80);
+    expect(stretchedSpouseGap).toBe(120);
+  });
 });
+

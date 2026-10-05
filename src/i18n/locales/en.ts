@@ -92,4 +92,15 @@ export const en: TranslationDictionary = {
   newTreeTitle: 'My Family Pedigree',
   resetTreeConfirm: 'Start New Tree?',
   resetTreeDesc: 'Are you sure? Any unsaved changes in your current tree will be replaced.',
+
+  // Spacing & Drag Stretch
+  spacing: 'Spacing',
+  adjustSpacing: 'Adjust Spacing',
+  horizontalSpacing: 'Horizontal Spacing',
+  verticalSpacing: 'Vertical Spacing (Generations)',
+  dragToStretch: 'Drag to stretch spacing',
+  compactSpacing: 'Compact',
+  defaultSpacing: 'Standard',
+  spaciousSpacing: 'Spacious',
+  resetSpacing: 'Reset Spacing',
 };

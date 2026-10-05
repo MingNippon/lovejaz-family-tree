@@ -92,4 +92,15 @@ export const ceb: TranslationDictionary = {
   newTreeTitle: 'Ang Akong Kaliwat',
   resetTreeConfirm: 'Magsugod og Bag-ong Kahoy?',
   resetTreeDesc: 'Sigurado ka ba? Ang bisan unsang wala ma-save nga kausaban mapulihan.',
+
+  // Spacing & Drag Stretch
+  spacing: 'Gintang',
+  adjustSpacing: 'I-adjust ang Gintang',
+  horizontalSpacing: 'Pahigda nga Gintang',
+  verticalSpacing: 'Patindog nga Gintang (Henerasyon)',
+  dragToStretch: 'I-drag aron mapalapad ang gintang',
+  compactSpacing: 'Giputos',
+  defaultSpacing: 'Standard',
+  spaciousSpacing: 'Halapad',
+  resetSpacing: 'I-reset ang Gintang',
 };
