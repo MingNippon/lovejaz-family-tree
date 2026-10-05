@@ -59,10 +59,17 @@ export const ja: TranslationDictionary = {
   theme: 'テーマ',
 
   // Themes
-  themeMinimalist: 'ミニマリスト・クリーン',
+  themeMinimalist: 'ミニマリスト・クリーン（ライト）',
   themeVintage: 'ロイヤル・ヴィンテージ羊皮紙',
-  themeNavy: 'エレガント・ネイビー＆ゴールド',
-  themeDark: 'ダーク・スタジオ',
+  themeNavy: 'エレガント・ネイビー＆ゴールド（ブルー）',
+  themeDark: 'ダーク・スタジオ（ダーク）',
+  themePink: 'ロマンティック・ピンク LoveJaz（ハート）',
+  themeLight: 'ライト',
+  themeDarkShort: 'ダーク',
+  themePinkShort: 'ピンク（ハート）',
+  themeNavyShort: 'ネイビーブルー',
+  themeVintageShort: 'ヴィンテージ',
+  themeSelector: 'テーマ',
 
   // Export Modal
   exportTitle: '家系図のエクスポート',

@@ -13,6 +13,8 @@ import {
 import { FamilyTreeData } from '../types/family';
 import { useI18n } from '../i18n';
 import { downloadTreeAsJson, parseTreeFromJson } from '../utils/storage';
+import { useTheme } from '../context/ThemeContext';
+import { ThemeSelector } from './ThemeSelector';
 
 export interface HeaderProps {
   tree?: FamilyTreeData;
@@ -48,6 +50,22 @@ export const Header: React.FC<HeaderProps> = ({
   className = '',
 }) => {
   const { currentLanguage, setLanguage, t, LANGUAGES } = useI18n();
+  const { theme } = useTheme();
+
+  const isLightMode = theme === 'minimalist' || theme === 'vintage';
+  const headerThemeClass =
+    theme === 'pink'
+      ? 'bg-[#200B1C]/95 border-b border-pink-900/40 text-pink-100 shadow-rose-950/20'
+      : theme === 'minimalist'
+      ? 'bg-white/95 border-b border-slate-200 text-slate-800 shadow-slate-200/50'
+      : theme === 'navy'
+      ? 'bg-[#0B132B]/95 border-b border-amber-500/20 text-slate-100 shadow-indigo-950/30'
+      : theme === 'vintage'
+      ? 'bg-[#EFE7D8] border-b border-[#D4C3A3] text-[#382918] shadow-amber-950/10'
+      : 'bg-slate-900 border-b border-slate-800 text-slate-100';
+
+  const titleTextColor = isLightMode ? 'text-slate-900' : 'text-white';
+  const subtitleTextColor = isLightMode ? 'text-slate-600' : 'text-slate-400';
 
   const [currentTitle, setCurrentTitle] = useState<string>(
     propTitle ?? tree?.title ?? 'My Family Pedigree'
@@ -149,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       role="banner"
       data-testid="header-container"
-      className={`w-full bg-slate-900 border-b border-slate-800 text-slate-100 px-4 py-2.5 select-none shadow-md ${className}`}
+      className={`w-full px-4 py-2.5 select-none shadow-md transition-colors duration-300 ${headerThemeClass} ${className}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Left Section: Brand & Editable Title */}
@@ -207,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
               data-testid="header-title-input"
               value={currentTitle}
               onChange={handleTitleChange}
-              className="text-xs sm:text-sm font-bold text-white bg-transparent border border-transparent hover:border-slate-700/80 focus:border-sky-500 rounded px-1.5 py-0.5 outline-none transition-all max-w-[170px] sm:max-w-[240px] md:max-w-[320px] truncate"
+              className={`text-xs sm:text-sm font-bold ${titleTextColor} bg-transparent border border-transparent hover:border-slate-700/80 focus:border-sky-500 rounded px-1.5 py-0.5 outline-none transition-all max-w-[170px] sm:max-w-[240px] md:max-w-[320px] truncate`}
               placeholder="Family Tree Title"
               title="Click to edit tree title"
             />
@@ -216,7 +234,7 @@ export const Header: React.FC<HeaderProps> = ({
               data-testid="header-subtitle-input"
               value={currentSubtitle}
               onChange={handleSubtitleChange}
-              className="text-[10px] sm:text-[11px] text-slate-400 bg-transparent border border-transparent hover:border-slate-700/80 focus:border-sky-500 rounded px-1.5 py-0.2 outline-none transition-all max-w-[170px] sm:max-w-[240px] md:max-w-[320px] truncate"
+              className={`text-[10px] sm:text-[11px] ${subtitleTextColor} bg-transparent border border-transparent hover:border-slate-700/80 focus:border-sky-500 rounded px-1.5 py-0.2 outline-none transition-all max-w-[170px] sm:max-w-[240px] md:max-w-[320px] truncate`}
               placeholder="Preserve your heritage across generations"
               title="Click to edit subtitle"
             />
@@ -318,6 +336,9 @@ export const Header: React.FC<HeaderProps> = ({
             <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-500/20" />
             <span className="hidden md:inline">{t('loveJazGuide') || 'Love Jaz Guide'}</span>
           </button>
+
+          {/* Theme Selector (Sáng, Tối, Hồng với Trái Tim, Xanh Dương, Cổ Điển) */}
+          <ThemeSelector />
 
           {/* 6-Language Dropdown Switcher */}
           <div

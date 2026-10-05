@@ -31,6 +31,7 @@ import {
 } from './utils/storage';
 import { decodeTreeFromUrl } from './utils/share';
 import { I18nProvider } from './i18n';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
 /**
  * Computes child count and spouse status for a given person.
@@ -634,10 +635,23 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
     return getPersonRelationsInfo(tree, selectedPersonId);
   }, [tree, selectedPersonId]);
 
+  const { theme } = useTheme();
+
+  const appBgClass =
+    theme === 'pink'
+      ? 'bg-[#180814] text-pink-50'
+      : theme === 'minimalist'
+      ? 'bg-slate-50 text-slate-800'
+      : theme === 'navy'
+      ? 'bg-[#070D1E] text-slate-100'
+      : theme === 'vintage'
+      ? 'bg-[#F5F0E6] text-[#382918]'
+      : 'bg-slate-950 text-slate-100';
+
   return (
     <div
       data-testid="app-container"
-      className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 select-none font-sans"
+      className={`flex flex-col h-screen w-screen overflow-hidden select-none font-sans transition-colors duration-500 ${appBgClass}`}
     >
       {/* Top Header Bar */}
       <Header
@@ -663,6 +677,7 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
       >
         <Canvas
           layout={layout}
+          theme={theme}
           svgRef={setSvgElement}
           canUndo={canUndo}
           canRedo={canRedo}
@@ -755,8 +770,10 @@ export const LoveJazApp: React.FC<LoveJazAppProps> = ({ initialTree }) => {
 
 export default function App() {
   return (
-    <I18nProvider>
-      <LoveJazApp />
-    </I18nProvider>
+    <ThemeProvider>
+      <I18nProvider>
+        <LoveJazApp />
+      </I18nProvider>
+    </ThemeProvider>
   );
 }

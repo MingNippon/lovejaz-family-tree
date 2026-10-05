@@ -20,6 +20,21 @@ export default {
           900: '#34291B',
         },
       },
+      keyframes: {
+        'border-beam': {
+          '100%': {
+            'offset-distance': '100%',
+          },
+        },
+        'pulse-subtle': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.85', transform: 'scale(1.02)' },
+        },
+      },
+      animation: {
+        'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
+        'pulse-subtle': 'pulse-subtle 3s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

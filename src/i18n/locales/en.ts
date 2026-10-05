@@ -59,10 +59,17 @@ export const en: TranslationDictionary = {
   theme: 'Theme',
 
   // Themes
-  themeMinimalist: 'Minimalist Clean',
+  themeMinimalist: 'Minimalist Clean (Light)',
   themeVintage: 'Royal Vintage Parchment',
-  themeNavy: 'Elegant Navy & Gold',
-  themeDark: 'Dark Studio',
+  themeNavy: 'Elegant Navy & Gold (Blue)',
+  themeDark: 'Dark Studio (Dark)',
+  themePink: 'Romantic Pink LoveJaz (Hearts)',
+  themeLight: 'Light',
+  themeDarkShort: 'Dark',
+  themePinkShort: 'Romantic Pink',
+  themeNavyShort: 'Navy Blue',
+  themeVintageShort: 'Vintage',
+  themeSelector: 'Theme',
 
   // Export Modal
   exportTitle: 'Export Family Tree',

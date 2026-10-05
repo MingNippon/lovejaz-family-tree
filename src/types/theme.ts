@@ -1,4 +1,4 @@
-export type VisualThemeId = 'minimalist' | 'vintage' | 'navy' | 'dark';
+export type VisualThemeId = 'minimalist' | 'vintage' | 'navy' | 'dark' | 'pink';
 
 export type ExportFormat = 'png' | 'svg' | 'pdf';
 
@@ -24,6 +24,8 @@ export interface ThemeConfig {
   accentColor?: string;
   borderColor?: string;
   cardBackground?: string;
+  headerBackground?: string;
+  dotColor?: string;
 }
 
 export interface ExportOptions {

@@ -7,6 +7,7 @@ import {
   vintageTheme,
   navyTheme,
   darkTheme,
+  pinkTheme,
   applyThemeToSvg,
   calculateSvgContentBounds,
 } from './themes';
@@ -16,6 +17,9 @@ import {
   exportToPrintPdf,
 } from '../utils/export';
 import { ExportModal } from '../components/ExportModal';
+import { ThemeSelector } from '../components/ThemeSelector';
+import { FloatingHearts } from '../components/motion/FloatingHearts';
+import { ThemeProvider } from '../context/ThemeContext';
 import { I18nProvider } from '../i18n';
 import { ExportOptions, VisualThemeId } from '../types/theme';
 
@@ -74,7 +78,16 @@ if (typeof (globalThis as any).window === 'undefined') {
       revokeObjectURL: vi.fn(),
     },
     open: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
   };
+} else {
+  if (!(globalThis as any).window.addEventListener) {
+    (globalThis as any).window.addEventListener = vi.fn();
+  }
+  if (!(globalThis as any).window.removeEventListener) {
+    (globalThis as any).window.removeEventListener = vi.fn();
+  }
 }
 
 if (typeof (globalThis as any).URL === 'undefined') {
@@ -82,9 +95,9 @@ if (typeof (globalThis as any).URL === 'undefined') {
 }
 
 describe('Theme Configuration Tokens', () => {
-  const themeIds: VisualThemeId[] = ['minimalist', 'vintage', 'navy', 'dark'];
+  const themeIds: VisualThemeId[] = ['minimalist', 'vintage', 'navy', 'dark', 'pink'];
 
-  it('defines all 4 heritage visual themes in THEMES dictionary', () => {
+  it('defines all 5 visual themes in THEMES dictionary', () => {
     themeIds.forEach((id) => {
       expect(THEMES[id]).toBeDefined();
       expect(THEMES[id].id).toBe(id);
@@ -124,6 +137,17 @@ describe('Theme Configuration Tokens', () => {
     expect(darkTheme.nodeFemaleStroke).toBe('#F43F5E');
     expect(darkTheme.fontClass).toBe('font-sans');
     expect(darkTheme.isDark).toBe(true);
+  });
+
+  it('validates pink romantic theme tokens', () => {
+    expect(pinkTheme.id).toBe('pink');
+    expect(pinkTheme.background.toUpperCase()).toBe('#180814');
+    expect(pinkTheme.nodeMaleStroke).toBe('#F472B6');
+    expect(pinkTheme.nodeFemaleStroke).toBe('#FB7185');
+    expect(pinkTheme.marriageStroke).toBe('#F43F5E');
+    expect(pinkTheme.siblingStroke).toBe('#E11D48');
+    expect(pinkTheme.fontClass).toBe('font-sans');
+    expect(pinkTheme.isDark).toBe(true);
   });
 
   it('ensures each theme specifies complete styling properties', () => {
@@ -699,6 +723,67 @@ describe('ExportModal Component', () => {
     );
 
     expect(html).toContain('data-testid="export-preview-card"');
+  });
+
+  it('renders pink theme option in ExportModal theme picker', () => {
+    const html = renderToString(
+      React.createElement(
+        I18nProvider,
+        null,
+        React.createElement(ExportModal, {
+          isOpen: true,
+          onClose: () => {},
+        })
+      )
+    );
+
+    expect(html).toContain('data-theme-option="pink"');
+  });
+});
+
+describe('ThemeSelector Component', () => {
+  it('renders theme selector trigger button', () => {
+    const html = renderToString(
+      React.createElement(
+        ThemeProvider,
+        null,
+        React.createElement(
+          I18nProvider,
+          null,
+          React.createElement(ThemeSelector, { compact: false })
+        )
+      )
+    );
+
+    expect(html).toContain('data-testid="theme-selector-container"');
+    expect(html).toContain('data-testid="theme-selector-button"');
+  });
+
+  it('renders compact theme selector trigger', () => {
+    const html = renderToString(
+      React.createElement(
+        ThemeProvider,
+        null,
+        React.createElement(
+          I18nProvider,
+          null,
+          React.createElement(ThemeSelector, { compact: true })
+        )
+      )
+    );
+
+    expect(html).toContain('data-testid="theme-selector-button"');
+  });
+});
+
+describe('FloatingHearts Motion Component', () => {
+  it('renders floating hearts container with ambient hearts', () => {
+    const html = renderToString(
+      React.createElement(FloatingHearts, { count: 8 })
+    );
+
+    expect(html).toContain('data-testid="floating-hearts-layer"');
+    expect(html).toContain('data-testid="floating-heart-');
   });
 });
 

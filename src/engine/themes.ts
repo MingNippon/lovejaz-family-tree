@@ -86,6 +86,32 @@ export const darkTheme: ThemeConfig = {
   accentColor: '#38BDF8',
   borderColor: '#374151',
   cardBackground: '#1F2937',
+  headerBackground: '#0F172A',
+  dotColor: 'rgba(148, 163, 184, 0.12)',
+};
+
+export const pinkTheme: ThemeConfig = {
+  id: 'pink',
+  name: 'Romantic Pink LoveJaz',
+  description: 'Romantic rose velvet, glowing heart accents, floating love particles',
+  background: '#180814',
+  nodeMaleFill: '#290F22',
+  nodeMaleStroke: '#F472B6',
+  nodeFemaleFill: '#2E0B24',
+  nodeFemaleStroke: '#FB7185',
+  marriageStroke: '#F43F5E',
+  siblingStroke: '#E11D48',
+  textPrimary: '#FFF1F2',
+  textSecondary: '#FDA4AF',
+  fontClass: 'font-sans',
+  borderStyle: 'solid 2px #FB7185',
+  isDark: true,
+  fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+  accentColor: '#F43F5E',
+  borderColor: '#BE185D',
+  cardBackground: '#280C21',
+  headerBackground: '#240A1D',
+  dotColor: 'rgba(244, 63, 94, 0.22)',
 };
 
 export const THEMES: Record<VisualThemeId, ThemeConfig> = {
@@ -93,6 +119,7 @@ export const THEMES: Record<VisualThemeId, ThemeConfig> = {
   vintage: vintageTheme,
   navy: navyTheme,
   dark: darkTheme,
+  pink: pinkTheme,
 };
 
 export interface SvgBounds {
@@ -599,6 +626,15 @@ function createBorderElement(
       <g data-testid="export-decorative-border" class="export-decorative-border">
         <rect x="${inset}" y="${inset}" width="${width}" height="${height}" rx="12" fill="none" stroke="#374151" stroke-width="2" />
         <rect x="${inset + 4}" y="${inset + 4}" width="${width - 8}" height="${height - 8}" rx="8" fill="none" stroke="#1E293B" stroke-width="1" />
+      </g>
+    `;
+  }
+
+  if (theme.id === 'pink') {
+    return `
+      <g data-testid="export-decorative-border" class="export-decorative-border">
+        <rect x="${inset}" y="${inset}" width="${width}" height="${height}" rx="16" fill="none" stroke="#FB7185" stroke-width="2" />
+        <rect x="${inset + 5}" y="${inset + 5}" width="${width - 10}" height="${height - 10}" rx="12" fill="none" stroke="#F43F5E" stroke-width="0.8" stroke-dasharray="6 4" opacity="0.6" />
       </g>
     `;
   }

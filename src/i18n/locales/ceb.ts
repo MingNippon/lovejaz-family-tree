@@ -59,10 +59,17 @@ export const ceb: TranslationDictionary = {
   theme: 'Tema',
 
   // Themes
-  themeMinimalist: 'Hapsay nga Minimalist',
+  themeMinimalist: 'Hapsay nga Minimalist (Hayag)',
   themeVintage: 'Kinaraang Papel',
-  themeNavy: 'Matahom nga Navy ug Bulawan',
+  themeNavy: 'Matahom nga Navy ug Bulawan (Asul)',
   themeDark: 'Ngitngit nga Studio',
+  themePink: 'Makahanggang Rosas LoveJaz (Kasingkasing)',
+  themeLight: 'Hayag',
+  themeDarkShort: 'Ngitngit',
+  themePinkShort: 'Theme Rosas (Kasingkasing)',
+  themeNavyShort: 'Theme Asul',
+  themeVintageShort: 'Kinaraan',
+  themeSelector: 'Tema',
 
   // Export Modal
   exportTitle: 'I-export ang Kaliwat sa Pamilya',

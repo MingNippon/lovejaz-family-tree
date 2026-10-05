@@ -59,10 +59,17 @@ export const zh: TranslationDictionary = {
   theme: '主题风格',
 
   // Themes
-  themeMinimalist: '极简纯白',
+  themeMinimalist: '极简纯白（明亮）',
   themeVintage: '皇家复古羊皮纸',
-  themeNavy: '典雅海军蓝与金',
-  themeDark: '深色演播室',
+  themeNavy: '典雅海军蓝与金（蓝色）',
+  themeDark: '深色演播室（暗黑）',
+  themePink: '浪漫粉红 LoveJaz（爱心）',
+  themeLight: '明亮风格',
+  themeDarkShort: '暗黑风格',
+  themePinkShort: '粉红爱心',
+  themeNavyShort: '海军蓝',
+  themeVintageShort: '羊皮纸',
+  themeSelector: '主题风格',
 
   // Export Modal
   exportTitle: '导出家谱图',

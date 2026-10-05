@@ -12,6 +12,7 @@ import { VisualThemeId, ExportResolution, ExportOptions } from '../types/theme';
 import { THEMES, applyThemeToSvg } from '../engine/themes';
 import { exportToPng, exportToSvg, exportToPrintPdf } from '../utils/export';
 import { useI18n } from '../i18n';
+import { BorderBeam } from './motion/BorderBeam';
 
 export interface ExportModalProps {
   isOpen: boolean;
@@ -139,10 +140,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const themeList: { id: VisualThemeId; titleKey: string; tag: string }[] = [
-    { id: 'minimalist', titleKey: 'themeMinimalist', tag: 'Modern Clean' },
-    { id: 'vintage', titleKey: 'themeVintage', tag: 'Royal Parchment' },
-    { id: 'navy', titleKey: 'themeNavy', tag: 'Regal Gold' },
+    { id: 'pink', titleKey: 'themePink', tag: '💖 Romantic Rose' },
     { id: 'dark', titleKey: 'themeDark', tag: 'Charcoal Studio' },
+    { id: 'minimalist', titleKey: 'themeMinimalist', tag: 'Modern Clean' },
+    { id: 'navy', titleKey: 'themeNavy', tag: 'Regal Gold' },
+    { id: 'vintage', titleKey: 'themeVintage', tag: 'Royal Parchment' },
   ];
 
   return (
@@ -158,6 +160,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         className="relative w-full max-w-5xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden my-6 text-slate-100 flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Border beam sweep from motion-primitives */}
+        <BorderBeam size={220} duration={8} colorFrom="#F59E0B" colorTo="#EC4899" />
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/80">
           <div className="flex items-center gap-3">

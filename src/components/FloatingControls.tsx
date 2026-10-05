@@ -18,6 +18,8 @@ import {
   DEFAULT_SPOUSE_GAP,
   DEFAULT_FAMILY_GAP,
 } from '../engine/layout';
+import { useTheme } from '../context/ThemeContext';
+import { ThemeSelector } from './ThemeSelector';
 
 export interface FloatingControlsProps {
   zoom: number;
@@ -57,8 +59,20 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
   className,
 }) => {
   const { t } = useI18n();
+  const { theme } = useTheme();
   const [isSpacingOpen, setIsSpacingOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement | null>(null);
+
+  const dockThemeClass =
+    theme === 'pink'
+      ? 'bg-[#280C21]/90 backdrop-blur-md border border-rose-500/40 text-rose-100 shadow-2xl shadow-rose-950/50'
+      : theme === 'minimalist'
+      ? 'bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 shadow-2xl shadow-slate-300/60'
+      : theme === 'navy'
+      ? 'bg-[#0F1C3F]/95 backdrop-blur-md border border-amber-500/30 text-amber-100 shadow-2xl shadow-indigo-950/60'
+      : theme === 'vintage'
+      ? 'bg-[#FAF6EE]/95 backdrop-blur-md border border-[#746049]/40 text-[#382918] shadow-2xl shadow-amber-950/20'
+      : 'bg-slate-900/90 backdrop-blur-md border border-slate-700/60 text-slate-200 shadow-2xl';
 
   const siblingGap = spacing?.siblingGap ?? DEFAULT_SIBLING_GAP;
   const generationHeight = spacing?.generationHeight ?? DEFAULT_GENERATION_HEIGHT;
@@ -246,7 +260,7 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
         data-testid="floating-controls"
         className={
           className ||
-          'flex items-center gap-1.5 p-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-2xl shadow-2xl text-slate-200 select-none'
+          `flex items-center gap-1.5 p-1.5 rounded-2xl select-none transition-colors duration-300 ${dockThemeClass}`
         }
       >
         {/* Undo / Redo controls */}
@@ -360,6 +374,11 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
             <Ruler className="w-4 h-4" />
           </button>
         </div>
+
+        <div className="h-5 w-px bg-slate-700/60 mx-0.5" />
+
+        {/* Quick Theme Selector Button */}
+        <ThemeSelector compact />
       </div>
     </div>
   );

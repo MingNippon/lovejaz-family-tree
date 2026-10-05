@@ -59,10 +59,17 @@ export const tl: TranslationDictionary = {
   theme: 'Tema',
 
   // Themes
-  themeMinimalist: 'Malinis na Minimalist',
+  themeMinimalist: 'Malinis na Minimalist (Maliwanag)',
   themeVintage: 'Klasikong Pergamino',
-  themeNavy: 'Maringal na Navy at Ginto',
+  themeNavy: 'Maringal na Navy at Ginto (Asul)',
   themeDark: 'Madilim na Studio',
+  themePink: 'Romantikong Rosas LoveJaz (Mga Puso)',
+  themeLight: 'Maliwanag',
+  themeDarkShort: 'Madilim',
+  themePinkShort: 'Theme Rosas (Puso)',
+  themeNavyShort: 'Theme Asul',
+  themeVintageShort: 'Pergamino',
+  themeSelector: 'Tema',
 
   // Export Modal
   exportTitle: 'I-export ang Punongangkan',

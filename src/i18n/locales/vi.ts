@@ -59,10 +59,17 @@ export const vi: TranslationDictionary = {
   theme: 'Giao diện',
 
   // Themes
-  themeMinimalist: 'Tối giản hiện đại',
-  themeVintage: 'Cổ điển Hoàng gia',
-  themeNavy: 'Xanh Navy & Ánh Vàng',
-  themeDark: 'Chế độ tối Studio',
+  themeMinimalist: 'Sáng Tối Giản Hiện Đại',
+  themeVintage: 'Cổ Điển Hoàng Gia',
+  themeNavy: 'Xanh Dương Navy & Ánh Vàng',
+  themeDark: 'Tối Studio Huyền Bí',
+  themePink: 'Hồng Lãng Mạn LoveJaz (Trái Tim)',
+  themeLight: 'Giao diện Sáng',
+  themeDarkShort: 'Giao diện Tối',
+  themePinkShort: 'Theme Hồng (Trái Tim)',
+  themeNavyShort: 'Theme Xanh Dương',
+  themeVintageShort: 'Theme Cổ Điển',
+  themeSelector: 'Giao diện',
 
   // Export Modal
   exportTitle: 'Xuất cây phả hệ',

@@ -16,6 +16,8 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { useI18n } from '../i18n';
+import { motion } from 'motion/react';
+import { BorderBeam } from './motion/BorderBeam';
 import {
   LOVE_JAZ_SITUATIONS,
   THE_FOUR_RULES,
@@ -121,8 +123,10 @@ export const LoveJazGuideModal: React.FC<LoveJazGuideModalProps> = ({
         className="relative w-full max-w-5xl rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden my-4 sm:my-6 text-slate-100 flex flex-col max-h-[94vh]"
         onClick={(e) => e.stopPropagation()}
       >
+        <BorderBeam size={260} duration={8} colorFrom="#F43F5E" colorTo="#FB7185" />
+
         {/* Header */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/95">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/95 relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500/30 via-pink-500/20 to-amber-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 shadow-sm shrink-0">
               <Heart className="w-5 h-5 fill-rose-500/20" />
@@ -156,22 +160,31 @@ export const LoveJazGuideModal: React.FC<LoveJazGuideModalProps> = ({
         </div>
 
         {/* Primary Navigation Tabs */}
-        <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-2.5 border-b border-slate-800 bg-slate-950/60">
+        <div className="flex items-center justify-between gap-3 px-5 sm:px-6 py-2.5 border-b border-slate-800 bg-slate-950/60 relative z-10">
           <div className="flex items-center gap-2">
             <button
               type="button"
               data-testid="guide-tab-manual"
               onClick={() => setActiveMainTab('manual')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 activeMainTab === 'manual'
-                  ? 'bg-rose-500/20 text-rose-200 border-rose-500/40 shadow-sm'
-                  : 'bg-slate-800/40 text-slate-400 border-transparent hover:bg-slate-800 hover:text-slate-200'
+                  ? 'text-rose-200'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
               }`}
             >
-              <Heart className="w-3.5 h-3.5 text-rose-400" />
-              <span>{t('userManualTab') || '💖 How to Love Jaz (Manual v1.0)'}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-200 font-mono">
-                22
+              {activeMainTab === 'manual' && (
+                <motion.span
+                  layoutId="guide-main-tab-pill"
+                  className="absolute inset-0 rounded-xl bg-rose-500/20 border border-rose-500/40 shadow-sm"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Heart className="w-3.5 h-3.5 text-rose-400" />
+                <span>{t('userManualTab') || '💖 How to Love Jaz (Manual v1.0)'}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/30 text-rose-200 font-mono">
+                  22
+                </span>
               </span>
             </button>
 
@@ -179,16 +192,25 @@ export const LoveJazGuideModal: React.FC<LoveJazGuideModalProps> = ({
               type="button"
               data-testid="guide-tab-deploy"
               onClick={() => setActiveMainTab('deploy')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+              className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 activeMainTab === 'deploy'
-                  ? 'bg-sky-500/20 text-sky-200 border-sky-500/40 shadow-sm'
-                  : 'bg-slate-800/40 text-slate-400 border-transparent hover:bg-slate-800 hover:text-slate-200'
+                  ? 'text-sky-200'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
               }`}
             >
-              <Globe className="w-3.5 h-3.5 text-sky-400" />
-              <span>{t('deployGuideTab') || '🚀 Free Global Deployment'}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-mono">
-                $0
+              {activeMainTab === 'deploy' && (
+                <motion.span
+                  layoutId="guide-main-tab-pill"
+                  className="absolute inset-0 rounded-xl bg-sky-500/20 border border-sky-500/40 shadow-sm"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Globe className="w-3.5 h-3.5 text-sky-400" />
+                <span>{t('deployGuideTab') || '🚀 Free Global Deployment'}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/30 text-emerald-300 font-mono">
+                  $0
+                </span>
               </span>
             </button>
           </div>
@@ -376,24 +398,33 @@ export const LoveJazGuideModal: React.FC<LoveJazGuideModalProps> = ({
                       type="button"
                       data-testid={tab.testId}
                       onClick={() => setActiveDeployTab(tab.id)}
-                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                      className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
                         isSelected
-                          ? 'bg-sky-500/20 text-sky-200 border-sky-500/40 shadow-sm'
-                          : 'bg-slate-800/40 text-slate-400 border-transparent hover:bg-slate-800 hover:text-slate-200'
+                          ? 'text-sky-200'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                       }`}
                     >
-                      <span>{tab.label}</span>
-                      {tab.badge && (
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                            isSelected
-                              ? 'bg-sky-400/30 text-sky-100'
-                              : 'bg-slate-700/60 text-slate-400'
-                          }`}
-                        >
-                          {tab.badge}
-                        </span>
+                      {isSelected && (
+                        <motion.span
+                          layoutId="guide-deploy-subtab-pill"
+                          className="absolute inset-0 rounded-xl bg-sky-500/20 border border-sky-500/40 shadow-sm"
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        />
                       )}
+                      <span className="relative z-10 flex items-center gap-2">
+                        <span>{tab.label}</span>
+                        {tab.badge && (
+                          <span
+                            className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                              isSelected
+                                ? 'bg-sky-400/30 text-sky-100'
+                                : 'bg-slate-700/60 text-slate-400'
+                            }`}
+                          >
+                            {tab.badge}
+                          </span>
+                        )}
+                      </span>
                     </button>
                   );
                 })}

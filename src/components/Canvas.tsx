@@ -25,6 +25,10 @@ import {
   DEFAULT_SPOUSE_GAP,
   DEFAULT_FAMILY_GAP,
 } from '../engine/layout';
+import { useTheme } from '../context/ThemeContext';
+import { THEMES } from '../engine/themes';
+import { VisualThemeId } from '../types/theme';
+import { FloatingHearts } from './motion/FloatingHearts';
 
 export { romanNumeral, formatGenerationLabel };
 
@@ -139,6 +143,32 @@ export const Canvas: React.FC<CanvasProps> = ({
   onSpacingChange,
 }) => {
   const { t } = useI18n();
+  const { theme: ctxTheme, themeConfig: ctxThemeConfig } = useTheme();
+  const activeThemeId = ((theme as VisualThemeId) || ctxTheme || 'dark') as VisualThemeId;
+  const activeThemeConfig = THEMES[activeThemeId] || ctxThemeConfig || THEMES.dark;
+
+  const canvasBgClass =
+    activeThemeId === 'pink'
+      ? 'bg-[#180814]'
+      : activeThemeId === 'minimalist'
+      ? 'bg-slate-50'
+      : activeThemeId === 'navy'
+      ? 'bg-[#070D1E]'
+      : activeThemeId === 'vintage'
+      ? 'bg-[#F5F0E6]'
+      : 'bg-slate-950';
+
+  const dotGridFill =
+    activeThemeId === 'pink'
+      ? 'rgba(244, 63, 94, 0.22)'
+      : activeThemeId === 'minimalist'
+      ? 'rgba(100, 116, 139, 0.20)'
+      : activeThemeId === 'navy'
+      ? 'rgba(212, 175, 55, 0.22)'
+      : activeThemeId === 'vintage'
+      ? 'rgba(82, 67, 45, 0.20)'
+      : 'rgba(148, 163, 184, 0.12)';
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const internalSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -570,7 +600,7 @@ export const Canvas: React.FC<CanvasProps> = ({
           y1={marriage.y1}
           x2={marriage.x2}
           y2={marriage.y2}
-          stroke="#94A3B8"
+          stroke={activeThemeConfig.marriageStroke}
           strokeWidth={2}
           strokeLinecap="round"
         />
@@ -579,8 +609,8 @@ export const Canvas: React.FC<CanvasProps> = ({
           cx={marriage.midX}
           cy={marriage.midY}
           r={2.5}
-          fill="#E2E8F0"
-          stroke="#475569"
+          fill={activeThemeConfig.isDark ? '#E2E8F0' : '#475569'}
+          stroke={activeThemeConfig.marriageStroke}
           strokeWidth={1}
         />
       </g>
@@ -602,7 +632,7 @@ export const Canvas: React.FC<CanvasProps> = ({
           y1={branch.stemStartY}
           x2={branch.stemStartX}
           y2={branch.stemEndY}
-          stroke="#94A3B8"
+          stroke={activeThemeConfig.siblingStroke}
           strokeWidth={2}
           strokeLinecap="round"
         />
@@ -614,7 +644,7 @@ export const Canvas: React.FC<CanvasProps> = ({
           y1={branch.stemEndY}
           x2={branch.barEndX}
           y2={branch.stemEndY}
-          stroke="#94A3B8"
+          stroke={activeThemeConfig.siblingStroke}
           strokeWidth={2}
           strokeLinecap="round"
         />
@@ -627,7 +657,7 @@ export const Canvas: React.FC<CanvasProps> = ({
               y1={drop.topY}
               x2={drop.bottomX}
               y2={drop.bottomY}
-              stroke="#94A3B8"
+              stroke={activeThemeConfig.siblingStroke}
               strokeWidth={2}
               strokeLinecap="round"
             />
@@ -636,7 +666,7 @@ export const Canvas: React.FC<CanvasProps> = ({
               cx={drop.topX}
               cy={drop.topY}
               r={2}
-              fill="#94A3B8"
+              fill={activeThemeConfig.siblingStroke}
             />
           </g>
         ))}
@@ -654,7 +684,7 @@ export const Canvas: React.FC<CanvasProps> = ({
     <div
       ref={containerRef}
       data-testid="canvas-container"
-      className={`relative w-full h-full overflow-hidden select-none bg-slate-950 ${cursorClass} ${
+      className={`relative w-full h-full overflow-hidden select-none transition-colors duration-500 ${canvasBgClass} ${cursorClass} ${
         className || ''
       }`}
       onMouseDown={handleMouseDown}
@@ -666,6 +696,9 @@ export const Canvas: React.FC<CanvasProps> = ({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* Floating Hearts particle animation when romantic pink theme is active */}
+      {activeThemeId === 'pink' && <FloatingHearts />}
+
       <svg
         ref={setCombinedSvgRef}
         data-testid="family-tree-svg"
@@ -685,7 +718,7 @@ export const Canvas: React.FC<CanvasProps> = ({
             height="40"
             patternUnits="userSpaceOnUse"
           >
-            <circle cx="20" cy="20" r="1" fill="rgba(148, 163, 184, 0.12)" />
+            <circle cx="20" cy="20" r="1" fill={dotGridFill} />
           </pattern>
         </defs>
 
