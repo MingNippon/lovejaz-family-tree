@@ -1,133 +1,140 @@
 import { FamilyTreeData } from '../types/family';
 
 /**
- * Returns a rich, curated 3-generation sample pedigree family tree.
- * Complies strictly with genetic/heritage pedigree conventions:
- * - Gen I: Grandfather (Male Square, 1952) + Grandmother (Female Circle, 1956)
- * - Gen II: 3 Children with spouses:
- *   - Eldest Son (Male Square) married to Daughter-in-law (Female Circle)
- *   - Daughter (Female Circle) married to Son-in-law (Male Square)
- *   - Youngest Son (Male Square, unmarried)
- * - Gen III: 4 Grandchildren (2 boys, 2 girls)
+ * Returns the curated 3-generation sample pedigree family tree for LoveJaz:
+ * - Generation I: M + J
+ *   - Emu Palomar (Male Square, 2007)
+ *   - Jazmine Palomar (Female Circle, 2007)
+ * - Generation II: 5 Children
+ *   - Haru Palomar (Male Square)
+ *   - Kiyo Palomar (Male Square)
+ *   - Yuki Palomar (Female Circle)
+ *   - Akari Palomar (Male Square)
+ *   - Aiko Palomar (Female Circle)
+ * - Generation III: 4 Grandchildren
+ *   - Rin Palomar (Female Circle)
+ *   - Xyril Palomar (Female Circle)
+ *   - Darel Palomar (Female Circle)
+ *   - Minh Palomar (Male Square)
  */
 export function getSampleFamilyTree(): FamilyTreeData {
   return {
     version: '1.0.0',
-    title: 'The Dela Cruz & Santos Heritage',
-    subtitle: 'Three Generations of Strength, Heritage & Family Legacy',
+    title: 'The Palomar Family Heritage',
+    subtitle: 'Generation I: M + J (2007) • Generation II: 5 Children • Generation III: 4 Grandchildren',
     description:
       'Curated sample pedigree showcasing 3 generations: male squares, female circles, marriage links, sibling branches, and life milestones.',
     rootPersonId: 'p_gen1_1',
     createdAt: '2026-10-05T00:00:00.000Z',
     updatedAt: '2026-10-05T00:00:00.000Z',
     persons: {
-      // Generation I: Patriarch & Matriarch
+      // Generation I: M + J (2007)
       p_gen1_1: {
         id: 'p_gen1_1',
-        name: 'Eduardo Dela Cruz',
+        name: 'Emu Palomar',
         gender: 'male',
-        birthYear: 1952,
-        title: 'Patriarch / Grandfather',
-        notes: 'Civil engineer & community elder; built the ancestral family home.',
+        birthYear: 2007,
+        title: 'Founder / Father (M)',
+        notes: 'M + J Founder; loving patriarch of the Palomar family.',
         avatarColor: '#3B82F6',
       },
       p_gen1_2: {
         id: 'p_gen1_2',
-        name: 'Maria Theresa Dela Cruz',
+        name: 'Jazmine Palomar',
         gender: 'female',
-        birthYear: 1956,
-        title: 'Matriarch / Grandmother',
-        notes: 'Botanist, educator, and beloved storyteller of family folklore.',
+        birthYear: 2007,
+        title: 'Founder / Mother (J)',
+        notes: 'Co-founder of LoveJaz; devoted mother and heart of the family.',
         avatarColor: '#EC4899',
       },
 
-      // Generation II: 3 Children + 2 Spouses
+      // Generation II: 5 Children
       p_gen2_1: {
         id: 'p_gen2_1',
-        name: 'Mateo Dela Cruz',
+        name: 'Haru Palomar',
         gender: 'male',
-        birthYear: 1978,
+        birthYear: 2026,
         title: 'Eldest Son',
-        notes: 'Senior structural engineer and heritage preservation advocate.',
+        notes: 'First child of Emu & Jazmine; father of Rin & Xyril.',
         avatarColor: '#3B82F6',
-      },
-      p_gen2_1_sp: {
-        id: 'p_gen2_1_sp',
-        name: 'Clarissa Reyes Dela Cruz',
-        gender: 'female',
-        birthYear: 1980,
-        title: 'Daughter-in-law',
-        notes: 'Landscape architect specializing in sustainable botanical gardens.',
-        avatarColor: '#EC4899',
       },
       p_gen2_2: {
         id: 'p_gen2_2',
-        name: 'Isabella Dela Cruz Santos',
-        gender: 'female',
-        birthYear: 1982,
-        title: 'Daughter',
-        notes: 'Associate professor of biochemistry and active youth mentor.',
-        avatarColor: '#EC4899',
-      },
-      p_gen2_2_sp: {
-        id: 'p_gen2_2_sp',
-        name: 'Gabriel Santos',
+        name: 'Kiyo Palomar',
         gender: 'male',
-        birthYear: 1981,
-        title: 'Son-in-law',
-        notes: 'Software architect and competitive long-distance marathoner.',
+        birthYear: 2028,
+        title: 'Second Son',
+        notes: 'Second child; father of Darel & Minh.',
         avatarColor: '#3B82F6',
       },
       p_gen2_3: {
         id: 'p_gen2_3',
-        name: 'Rafael Dela Cruz',
+        name: 'Yuki Palomar',
+        gender: 'female',
+        birthYear: 2030,
+        title: 'Eldest Daughter',
+        notes: 'Loving aunt, biochemist, and artist.',
+        avatarColor: '#EC4899',
+      },
+      p_gen2_4: {
+        id: 'p_gen2_4',
+        name: 'Akari Palomar',
         gender: 'male',
-        birthYear: 1988,
-        title: 'Youngest Son',
-        notes: 'Award-winning documentary photographer and nature conservationist.',
+        birthYear: 2032,
+        title: 'Third Son',
+        notes: 'Visual artist, photographer, and world traveler.',
         avatarColor: '#3B82F6',
       },
+      p_gen2_5: {
+        id: 'p_gen2_5',
+        name: 'Aiko Palomar',
+        gender: 'female',
+        birthYear: 2035,
+        title: 'Youngest Daughter',
+        notes: 'Youngest sister, writer, and youth mentor.',
+        avatarColor: '#EC4899',
+      },
 
-      // Generation III: 4 Grandchildren (2 boys, 2 girls)
+      // Generation III: 4 Grandchildren
       p_gen3_1: {
         id: 'p_gen3_1',
-        name: 'Lucas Dela Cruz',
-        gender: 'male',
-        birthYear: 2008,
-        age: 18,
-        title: 'Grandson',
-        notes: 'High school robotics captain and aspiring software engineer.',
-        avatarColor: '#3B82F6',
+        name: 'Rin Palomar',
+        gender: 'female',
+        birthYear: 2046,
+        age: 10,
+        title: 'Granddaughter',
+        notes: 'Daughter of Haru Palomar; violinist and chess player.',
+        avatarColor: '#EC4899',
       },
       p_gen3_2: {
         id: 'p_gen3_2',
-        name: 'Sofia Dela Cruz',
+        name: 'Xyril Palomar',
         gender: 'female',
-        birthYear: 2012,
-        age: 14,
+        birthYear: 2048,
+        age: 8,
         title: 'Granddaughter',
-        notes: 'Classical violinist, cellist, and regional youth chess champion.',
+        notes: 'Daughter of Haru Palomar; swimmer and creative artist.',
         avatarColor: '#EC4899',
       },
       p_gen3_3: {
         id: 'p_gen3_3',
-        name: 'Julian Santos',
-        gender: 'male',
-        birthYear: 2011,
-        age: 15,
-        title: 'Grandson',
-        notes: 'Varsity swimmer, math olympiad medalist, and sci-fi enthusiast.',
-        avatarColor: '#3B82F6',
+        name: 'Darel Palomar',
+        gender: 'female',
+        birthYear: 2050,
+        age: 6,
+        title: 'Granddaughter',
+        notes: 'Daughter of Kiyo Palomar; creative dancer.',
+        avatarColor: '#EC4899',
       },
       p_gen3_4: {
         id: 'p_gen3_4',
-        name: 'Elena Santos',
-        gender: 'female',
-        birthYear: 2015,
-        age: 11,
-        title: 'Granddaughter',
-        notes: 'Creative watercolor artist, avid reader, and wildlife protector.',
-        avatarColor: '#EC4899',
+        name: 'Minh Palomar',
+        gender: 'male',
+        birthYear: 2052,
+        age: 4,
+        title: 'Grandson',
+        notes: 'Son of Kiyo Palomar; curious explorer and robotics fan.',
+        avatarColor: '#3B82F6',
       },
     },
     unions: {
@@ -135,18 +142,18 @@ export function getSampleFamilyTree(): FamilyTreeData {
         id: 'u_gen1',
         partner1Id: 'p_gen1_1',
         partner2Id: 'p_gen1_2',
-        childrenIds: ['p_gen2_1', 'p_gen2_2', 'p_gen2_3'],
+        childrenIds: ['p_gen2_1', 'p_gen2_2', 'p_gen2_3', 'p_gen2_4', 'p_gen2_5'],
       },
       u_gen2_1: {
         id: 'u_gen2_1',
         partner1Id: 'p_gen2_1',
-        partner2Id: 'p_gen2_1_sp',
+        partner2Id: '',
         childrenIds: ['p_gen3_1', 'p_gen3_2'],
       },
       u_gen2_2: {
         id: 'u_gen2_2',
         partner1Id: 'p_gen2_2',
-        partner2Id: 'p_gen2_2_sp',
+        partner2Id: '',
         childrenIds: ['p_gen3_3', 'p_gen3_4'],
       },
     },

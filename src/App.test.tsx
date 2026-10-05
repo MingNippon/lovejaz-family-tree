@@ -26,8 +26,8 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
     it('returns sample family tree when no url hash or storage exists', () => {
       const tree = createInitialTree(undefined, null);
       expect(tree).toBeDefined();
-      expect(tree.title).toBe('The Dela Cruz & Santos Heritage');
-      expect(tree.persons['p_gen1_1'].name).toBe('Eduardo Dela Cruz');
+      expect(tree.title).toBe('The Palomar Family Heritage');
+      expect(tree.persons['p_gen1_1'].name).toBe('Emu Palomar');
     });
 
     it('loads from storage when stored tree is provided', () => {
@@ -66,7 +66,7 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
 
   describe('addSpouseToTree', () => {
     it('creates an opposite gender spouse (female for male) and marriage union', () => {
-      const malePersonId = 'p_gen2_3'; // Rafael Dela Cruz (unmarried male)
+      const malePersonId = 'p_gen2_4'; // Akari Palomar (unmarried male)
       const initialPersonCount = Object.keys(sampleTree.persons).length;
       const initialUnionCount = Object.keys(sampleTree.unions).length;
 
@@ -78,7 +78,7 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
       const spouse = newTree.persons[spouseId];
       expect(spouse).toBeDefined();
       expect(spouse.gender).toBe('female');
-      expect(spouse.name).toContain('Spouse of Rafael Dela Cruz');
+      expect(spouse.name).toContain('Spouse of Akari Palomar');
 
       // Check marriage union
       const union = Object.values(newTree.unions).find(
@@ -141,14 +141,14 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
     });
 
     it('automatically creates partner and union if parent has no existing union', () => {
-      const unmarriedId = 'p_gen2_3'; // Rafael (unmarried)
+      const unmarriedId = 'p_gen2_4'; // Akari Palomar (unmarried)
       const initialPersons = Object.keys(sampleTree.persons).length;
       const initialUnions = Object.keys(sampleTree.unions).length;
 
       const { newTree, childId } = addChildToTree(sampleTree, unmarriedId, {
-        name: 'Rafael Jr.',
+        name: 'Akari Jr.',
         gender: 'male',
-        birthYear: 2024,
+        birthYear: 2054,
       });
 
       // Creates child + auto-spouse
@@ -156,7 +156,7 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
       expect(Object.keys(newTree.unions).length).toBe(initialUnions + 1);
 
       const child = newTree.persons[childId];
-      expect(child.name).toBe('Rafael Jr.');
+      expect(child.name).toBe('Akari Jr.');
 
       // Find the created union containing unmarriedId and childId
       const newUnion = Object.values(newTree.unions).find(
@@ -192,9 +192,9 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
         const mother = newTree.persons[motherId];
 
         expect(father.gender).toBe('male');
-        expect(father.name).toContain('Father of Eduardo Dela Cruz');
+        expect(father.name).toContain('Father of Emu Palomar');
         expect(mother.gender).toBe('female');
-        expect(mother.name).toContain('Mother of Eduardo Dela Cruz');
+        expect(mother.name).toContain('Mother of Emu Palomar');
 
         // Check that union lists grandFatherId as child
         const parentsUnion = Object.values(newTree.unions).find(
@@ -225,17 +225,17 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
       const targetId = 'p_gen1_1';
       const updatedPerson: Person = {
         ...sampleTree.persons[targetId],
-        name: 'Eduardo Dela Cruz Sr.',
+        name: 'Emu Palomar Sr.',
         title: 'Grand Patriarch of the Family',
         notes: 'Updated family memories',
-        birthYear: 1950,
+        birthYear: 2005,
       };
 
       const newTree = editPersonInTree(sampleTree, updatedPerson);
-      expect(newTree.persons[targetId].name).toBe('Eduardo Dela Cruz Sr.');
+      expect(newTree.persons[targetId].name).toBe('Emu Palomar Sr.');
       expect(newTree.persons[targetId].title).toBe('Grand Patriarch of the Family');
       expect(newTree.persons[targetId].notes).toBe('Updated family memories');
-      expect(newTree.persons[targetId].birthYear).toBe(1950);
+      expect(newTree.persons[targetId].birthYear).toBe(2005);
     });
 
     it('throws error when editing non-existent person', () => {
@@ -295,7 +295,7 @@ describe('LoveJaz App Integration - Mutation Utilities', () => {
     it('returns correct childCount and hasSpouse for a married parent', () => {
       const info = getPersonRelationsInfo(sampleTree, 'p_gen1_1');
       expect(info.hasSpouse).toBe(true);
-      expect(info.childCount).toBe(3); // Mateo, Isabella, Rafael
+      expect(info.childCount).toBe(5); // Haru, Kiyo, Yuki, Akari, Aiko
     });
 
     it('returns childCount 0 and hasSpouse false for unmarried person', () => {
@@ -317,7 +317,7 @@ describe('LoveJaz App Component Integration Rendering', () => {
     const html = renderToString(<App />);
     expect(html).toContain('data-testid="header-container"');
     expect(html).toContain('LoveJaz');
-    expect(html).toContain('The Dela Cruz &amp; Santos Heritage');
+    expect(html).toContain('The Palomar Family Heritage');
   });
 
   it('renders header action buttons (Sample, New, Import, Export, Share, Deploy)', () => {
@@ -364,11 +364,11 @@ describe('LoveJaz App Component Integration Rendering', () => {
 
   it('renders person nodes with male squares and female circles', () => {
     const html = renderToString(<App />);
-    // Gen I: Eduardo Dela Cruz (male square) & Maria Theresa (female circle)
+    // Gen I: Emu Palomar (male square) & Jazmine Palomar (female circle)
     expect(html).toContain('data-testid="person-node-p_gen1_1"');
     expect(html).toContain('data-testid="person-node-p_gen1_2"');
-    expect(html).toContain('Eduardo Dela Cruz');
-    expect(html).toContain('Maria Theresa Dela Cruz');
+    expect(html).toContain('Emu Palomar');
+    expect(html).toContain('Jazmine Palomar');
   });
 
   it('renders LoveJazApp directly within custom I18n context', () => {

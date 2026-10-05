@@ -33,9 +33,9 @@ describe('Header Component Rendering & Actions', () => {
   it('renders tree title and subtitle from tree prop if provided', () => {
     const html = renderToString(<Header tree={sampleTree} />);
     expect(html).toContain('data-testid="header-title-input"');
-    expect(html).toContain('value="The Dela Cruz &amp; Santos Heritage"');
+    expect(html).toContain('value="The Palomar Family Heritage"');
     expect(html).toContain('data-testid="header-subtitle-input"');
-    expect(html).toContain('value="Three Generations of Strength, Heritage &amp; Family Legacy"');
+    expect(html).toContain('value="Generation I: M + J (2007) • Generation II: 5 Children • Generation III: 4 Grandchildren"');
   });
 
   it('falls back to default title and subtitle when no props provided', () => {

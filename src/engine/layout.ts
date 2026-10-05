@@ -63,19 +63,25 @@ export function computePedigreeLayout(
   const spouseOf: Record<string, string[]> = {};
 
   Object.values(tree.unions).forEach((union) => {
-    if (!spouseOf[union.partner1Id]) spouseOf[union.partner1Id] = [];
-    if (!spouseOf[union.partner2Id]) spouseOf[union.partner2Id] = [];
-    spouseOf[union.partner1Id].push(union.partner2Id);
-    spouseOf[union.partner2Id].push(union.partner1Id);
+    const p1Id = union.partner1Id;
+    const p2Id = union.partner2Id;
 
+    if (p1Id && p2Id) {
+      if (!spouseOf[p1Id]) spouseOf[p1Id] = [];
+      if (!spouseOf[p2Id]) spouseOf[p2Id] = [];
+      spouseOf[p1Id].push(p2Id);
+      spouseOf[p2Id].push(p1Id);
+    }
+
+    const parents = [p1Id, p2Id].filter(Boolean);
     union.childrenIds.forEach((childId) => {
       if (!parentOf[childId]) parentOf[childId] = [];
-      parentOf[childId].push(union.partner1Id, union.partner2Id);
+      parentOf[childId].push(...parents);
 
-      if (!childrenOfPerson[union.partner1Id]) childrenOfPerson[union.partner1Id] = [];
-      childrenOfPerson[union.partner1Id].push(childId);
-      if (!childrenOfPerson[union.partner2Id]) childrenOfPerson[union.partner2Id] = [];
-      childrenOfPerson[union.partner2Id].push(childId);
+      parents.forEach((parentId) => {
+        if (!childrenOfPerson[parentId]) childrenOfPerson[parentId] = [];
+        childrenOfPerson[parentId].push(childId);
+      });
     });
   });
 
@@ -94,19 +100,24 @@ export function computePedigreeLayout(
     changed = false;
     iterations++;
 
-    // Unify spouse generations
+    // Unify spouse generations & propagate to children
     Object.values(tree.unions).forEach((union) => {
-      const g1 = personGen[union.partner1Id] ?? 0;
-      const g2 = personGen[union.partner2Id] ?? 0;
-      const maxSpouseGen = Math.max(g1, g2);
+      const p1Id = union.partner1Id;
+      const p2Id = union.partner2Id;
+      const g1 = p1Id ? personGen[p1Id] ?? 0 : 0;
+      const g2 = p2Id ? personGen[p2Id] ?? 0 : 0;
+      const hasSpouse = Boolean(p1Id && p2Id && tree.persons[p1Id] && tree.persons[p2Id]);
+      const maxSpouseGen = hasSpouse ? Math.max(g1, g2) : (p1Id ? g1 : g2);
 
-      if (g1 < maxSpouseGen) {
-        personGen[union.partner1Id] = maxSpouseGen;
-        changed = true;
-      }
-      if (g2 < maxSpouseGen) {
-        personGen[union.partner2Id] = maxSpouseGen;
-        changed = true;
+      if (hasSpouse) {
+        if (g1 < maxSpouseGen) {
+          personGen[p1Id] = maxSpouseGen;
+          changed = true;
+        }
+        if (g2 < maxSpouseGen) {
+          personGen[p2Id] = maxSpouseGen;
+          changed = true;
+        }
       }
 
       // Propagate to children
@@ -155,27 +166,39 @@ export function computePedigreeLayout(
 
   // Sort unions by generation level so older generations are positioned first
   const unionList = Object.values(tree.unions).sort((a, b) => {
-    const genA = Math.min(personGen[a.partner1Id] ?? 0, personGen[a.partner2Id] ?? 0);
-    const genB = Math.min(personGen[b.partner1Id] ?? 0, personGen[b.partner2Id] ?? 0);
+    const genA = a.partner1Id
+      ? personGen[a.partner1Id] ?? 0
+      : a.partner2Id
+        ? personGen[a.partner2Id] ?? 0
+        : 0;
+    const genB = b.partner1Id
+      ? personGen[b.partner1Id] ?? 0
+      : b.partner2Id
+        ? personGen[b.partner2Id] ?? 0
+        : 0;
     return genA - genB;
   });
 
   unionList.forEach((union) => {
-    const p1 = tree.persons[union.partner1Id];
-    const p2 = tree.persons[union.partner2Id];
-    if (!p1 || !p2) return;
+    const p1 = union.partner1Id ? tree.persons[union.partner1Id] : undefined;
+    const p2 = union.partner2Id ? tree.persons[union.partner2Id] : undefined;
+    if (!p1 && !p2) return;
 
-    const g = personGen[p1.id] ?? 0;
+    const hasSpouse = Boolean(p1 && p2);
+    const mainParent = p1 || p2!;
+    const spouse = p1 ? p2 : undefined;
+
+    const g = personGen[mainParent.id] ?? 0;
     const y = PADDING + g * generationHeight;
+    const childGen = g + 1;
 
-    const p1Positioned = positionedPersons.has(p1.id);
-    const p2Positioned = positionedPersons.has(p2.id);
+    const mainParentPositioned = positionedPersons.has(mainParent.id);
+    const spousePositioned = spouse ? positionedPersons.has(spouse.id) : false;
 
     let p1X = 0;
     let p2X = 0;
 
     // Helper: calculate children units (coupling children with their spouses so they stay adjacent)
-    const childGen = g + 1;
     const childUnits: {
       primaryChildId: string;
       spouseId?: string;
@@ -187,8 +210,8 @@ export function computePedigreeLayout(
         // Find if this child is married to someone who hasn't been placed yet
         const childUnion = Object.values(tree.unions).find(
           (u) =>
-            (u.partner1Id === childId && !positionedPersons.has(u.partner2Id)) ||
-            (u.partner2Id === childId && !positionedPersons.has(u.partner1Id))
+            (u.partner1Id === childId && u.partner2Id && !positionedPersons.has(u.partner2Id)) ||
+            (u.partner2Id === childId && u.partner1Id && !positionedPersons.has(u.partner1Id))
         );
         const spouseId = childUnion
           ? childUnion.partner1Id === childId
@@ -221,64 +244,89 @@ export function computePedigreeLayout(
       }
     });
 
-    if (!p1Positioned && !p2Positioned) {
-      const minParentX = maxXByGen[g] ? maxXByGen[g] + familyGap : PADDING;
-      let startX = minParentX;
+    let stemStartX = 0;
+    let stemStartY = 0;
 
-      if (union.childrenIds.length > 0) {
-        const minChildX = maxXByGen[childGen] ? maxXByGen[childGen] + familyGap : PADDING;
-        const totalParentsWidth = NODE_SIZE * 2 + spouseGap;
-        const midOffset = totalParentsWidth / 2;
-        const childStartOffset = midOffset - totalChildrenWidth / 2;
-        if (startX + childStartOffset < minChildX) {
-          startX = minChildX - childStartOffset;
+    if (hasSpouse && spouse) {
+      // Coupled union with two partners
+      if (!mainParentPositioned && !spousePositioned) {
+        const minParentX = maxXByGen[g] ? maxXByGen[g] + familyGap : PADDING;
+        let startX = minParentX;
+
+        if (union.childrenIds.length > 0) {
+          const minChildX = maxXByGen[childGen] ? maxXByGen[childGen] + familyGap : PADDING;
+          const totalParentsWidth = NODE_SIZE * 2 + spouseGap;
+          const midOffset = totalParentsWidth / 2;
+          const childStartOffset = midOffset - totalChildrenWidth / 2;
+          if (startX + childStartOffset < minChildX) {
+            startX = minChildX - childStartOffset;
+          }
         }
-      }
 
-      p1X = startX;
-      p2X = p1X + NODE_SIZE + spouseGap;
-      placePerson(p1.id, p1X, g);
-      placePerson(p2.id, p2X, g);
-    } else if (p1Positioned && !p2Positioned) {
-      p1X = nodes[p1.id].x;
-      p2X = p1X + NODE_SIZE + spouseGap;
-      placePerson(p2.id, p2X, g);
-    } else if (!p1Positioned && p2Positioned) {
-      p2X = nodes[p2.id].x;
-      p1X = Math.max(PADDING, p2X - (NODE_SIZE + spouseGap));
-      if (positionedPersons.has(p1.id)) {
-        p1X = nodes[p1.id].x;
+        p1X = startX;
+        p2X = p1X + NODE_SIZE + spouseGap;
+        placePerson(mainParent.id, p1X, g);
+        placePerson(spouse.id, p2X, g);
+      } else if (mainParentPositioned && !spousePositioned) {
+        p1X = nodes[mainParent.id].x;
+        p2X = p1X + NODE_SIZE + spouseGap;
+        placePerson(spouse.id, p2X, g);
+      } else if (!mainParentPositioned && spousePositioned) {
+        p2X = nodes[spouse.id].x;
+        p1X = Math.max(PADDING, p2X - (NODE_SIZE + spouseGap));
+        placePerson(mainParent.id, p1X, g);
       } else {
-        placePerson(p1.id, p1X, g);
+        p1X = nodes[mainParent.id].x;
+        p2X = nodes[spouse.id].x;
       }
-    } else {
-      p1X = nodes[p1.id].x;
-      p2X = nodes[p2.id].x;
-    }
 
-    // Marriage line between p1 and p2
-    const leftX = Math.min(p1X, p2X);
-    const rightX = Math.max(p1X, p2X);
-    const marriageLine: MarriageLine = {
-      id: union.id,
-      partner1Id: p1.id,
-      partner2Id: p2.id,
-      x1: leftX + NODE_SIZE,
-      y1: y + NODE_SIZE / 2,
-      x2: rightX,
-      y2: y + NODE_SIZE / 2,
-      midX: (leftX + NODE_SIZE + rightX) / 2,
-      midY: y + NODE_SIZE / 2,
-      childrenIds: union.childrenIds,
-    };
-    marriages.push(marriageLine);
+      const leftX = Math.min(p1X, p2X);
+      const rightX = Math.max(p1X, p2X);
+      const marriageLine: MarriageLine = {
+        id: union.id,
+        partner1Id: mainParent.id,
+        partner2Id: spouse.id,
+        x1: leftX + NODE_SIZE,
+        y1: y + NODE_SIZE / 2,
+        x2: rightX,
+        y2: y + NODE_SIZE / 2,
+        midX: (leftX + NODE_SIZE + rightX) / 2,
+        midY: y + NODE_SIZE / 2,
+        childrenIds: union.childrenIds,
+      };
+      marriages.push(marriageLine);
+
+      stemStartX = marriageLine.midX;
+      stemStartY = marriageLine.midY;
+    } else {
+      // Single parent union (no spouse)
+      if (!mainParentPositioned) {
+        const minParentX = maxXByGen[g] ? maxXByGen[g] + familyGap : PADDING;
+        let startX = minParentX;
+
+        if (union.childrenIds.length > 0) {
+          const minChildX = maxXByGen[childGen] ? maxXByGen[childGen] + familyGap : PADDING;
+          const midOffset = NODE_SIZE / 2;
+          const childStartOffset = midOffset - totalChildrenWidth / 2;
+          if (startX + childStartOffset < minChildX) {
+            startX = minChildX - childStartOffset;
+          }
+        }
+
+        placePerson(mainParent.id, startX, g);
+      }
+
+      stemStartX = nodes[mainParent.id].x + NODE_SIZE / 2;
+      // Drop from below the label area so it never intersects the name or badge
+      stemStartY = y + NODE_SIZE + 68;
+    }
 
     // Layout children & sibling branch
     if (union.childrenIds.length > 0) {
       const childY = PADDING + childGen * generationHeight;
       const minChildX = maxXByGen[childGen] ? maxXByGen[childGen] + siblingGap : PADDING;
 
-      let childStartX = marriageLine.midX - totalChildrenWidth / 2;
+      let childStartX = stemStartX - totalChildrenWidth / 2;
       if (childStartX < minChildX) {
         childStartX = minChildX;
       }
@@ -332,13 +380,13 @@ export function computePedigreeLayout(
         const childXs = childDrops.map((d) => d.topX);
         const minChildDropX = Math.min(...childXs);
         const maxChildDropX = Math.max(...childXs);
-        const barStartX = Math.min(minChildDropX, marriageLine.midX);
-        const barEndX = Math.max(maxChildDropX, marriageLine.midX);
+        const barStartX = Math.min(minChildDropX, stemStartX);
+        const barEndX = Math.max(maxChildDropX, stemStartX);
 
         branches.push({
           unionId: union.id,
-          stemStartX: marriageLine.midX,
-          stemStartY: marriageLine.midY,
+          stemStartX,
+          stemStartY,
           stemEndY: barY,
           barStartX,
           barEndX,

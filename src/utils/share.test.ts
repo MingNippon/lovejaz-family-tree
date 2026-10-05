@@ -257,24 +257,27 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
 
       // Must have at least 10 people for 3 generations
       expect(persons.length).toBeGreaterThanOrEqual(10);
-      expect(unions.length).toBeGreaterThanOrEqual(3);
+      expect(unions.length).toBeGreaterThanOrEqual(2);
 
       // Verify every union references valid partner IDs
       unions.forEach((u) => {
         expect(tree.persons[u.partner1Id]).toBeDefined();
-        expect(tree.persons[u.partner2Id]).toBeDefined();
+        if (u.partner2Id) {
+          expect(tree.persons[u.partner2Id]).toBeDefined();
+        }
         u.childrenIds.forEach((childId) => {
           expect(tree.persons[childId]).toBeDefined();
         });
       });
     });
 
-    it('satisfies Gen I requirements: Grandfather (Male Square, 1952) + Grandmother (Female Circle, 1956)', () => {
+    it('satisfies Gen I requirements: M + J (Emu Palomar 2007 + Jazmine Palomar 2007)', () => {
       const tree = getSampleFamilyTree();
       const rootPerson = tree.persons[tree.rootPersonId];
       expect(rootPerson).toBeDefined();
+      expect(rootPerson.name).toBe('Emu Palomar');
       expect(rootPerson.gender).toBe('male');
-      expect(Number(rootPerson.birthYear)).toBe(1952);
+      expect(Number(rootPerson.birthYear)).toBe(2007);
 
       // Find root's marriage
       const gen1Union = Object.values(tree.unions).find(
@@ -283,76 +286,71 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
       expect(gen1Union).toBeDefined();
 
       const spouseId = gen1Union!.partner1Id === tree.rootPersonId ? gen1Union!.partner2Id : gen1Union!.partner1Id;
-      const grandmother = tree.persons[spouseId];
-      expect(grandmother).toBeDefined();
-      expect(grandmother.gender).toBe('female');
-      expect(Number(grandmother.birthYear)).toBe(1956);
+      const mother = tree.persons[spouseId];
+      expect(mother).toBeDefined();
+      expect(mother.name).toBe('Jazmine Palomar');
+      expect(mother.gender).toBe('female');
+      expect(Number(mother.birthYear)).toBe(2007);
 
-      // Gen I has 3 children
-      expect(gen1Union!.childrenIds.length).toBe(3);
+      // Gen I has 5 children
+      expect(gen1Union!.childrenIds.length).toBe(5);
     });
 
-    it('satisfies Gen II requirements: 3 children with spouses (Eldest son + wife, Daughter + husband, Youngest son single)', () => {
+    it('satisfies Gen II requirements: 5 children (Haru, Kiyo, Yuki, Akari, Aiko)', () => {
       const tree = getSampleFamilyTree();
       const gen1Union = Object.values(tree.unions).find(
         (u) => u.partner1Id === tree.rootPersonId || u.partner2Id === tree.rootPersonId
       )!;
 
-      const [c1Id, c2Id, c3Id] = gen1Union.childrenIds;
-      const c1 = tree.persons[c1Id]; // Eldest Son
-      const c2 = tree.persons[c2Id]; // Daughter
-      const c3 = tree.persons[c3Id]; // Youngest Son
+      const [c1Id, c2Id, c3Id, c4Id, c5Id] = gen1Union.childrenIds;
+      const c1 = tree.persons[c1Id]; // Haru
+      const c2 = tree.persons[c2Id]; // Kiyo
+      const c3 = tree.persons[c3Id]; // Yuki
+      const c4 = tree.persons[c4Id]; // Akari
+      const c5 = tree.persons[c5Id]; // Aiko
 
+      expect(c1.name).toBe('Haru Palomar');
       expect(c1.gender).toBe('male');
-      expect(c2.gender).toBe('female');
-      expect(c3.gender).toBe('male');
 
-      // Eldest son married to female spouse
-      const eldestUnion = Object.values(tree.unions).find(
-        (u) => u.partner1Id === c1.id || u.partner2Id === c1.id
-      );
-      expect(eldestUnion).toBeDefined();
-      const eldestSpouseId = eldestUnion!.partner1Id === c1.id ? eldestUnion!.partner2Id : eldestUnion!.partner1Id;
-      expect(tree.persons[eldestSpouseId].gender).toBe('female');
+      expect(c2.name).toBe('Kiyo Palomar');
+      expect(c2.gender).toBe('male');
 
-      // Daughter married to male spouse
-      const daughterUnion = Object.values(tree.unions).find(
-        (u) => u.partner1Id === c2.id || u.partner2Id === c2.id
-      );
-      expect(daughterUnion).toBeDefined();
-      const daughterSpouseId = daughterUnion!.partner1Id === c2.id ? daughterUnion!.partner2Id : daughterUnion!.partner1Id;
-      expect(tree.persons[daughterSpouseId].gender).toBe('male');
+      expect(c3.name).toBe('Yuki Palomar');
+      expect(c3.gender).toBe('female');
 
-      // Youngest son is unmarried (no union)
-      const youngestUnion = Object.values(tree.unions).find(
-        (u) => u.partner1Id === c3.id || u.partner2Id === c3.id
-      );
-      expect(youngestUnion).toBeUndefined();
+      expect(c4.name).toBe('Akari Palomar');
+      expect(c4.gender).toBe('male');
+
+      expect(c5.name).toBe('Aiko Palomar');
+      expect(c5.gender).toBe('female');
     });
 
-    it('satisfies Gen III requirements: 4 grandchildren (2 boys, 2 girls)', () => {
+    it('satisfies Gen III requirements: 4 grandchildren (Rin, Xyril, Darel, Minh)', () => {
       const tree = getSampleFamilyTree();
       const gen1Union = Object.values(tree.unions).find(
         (u) => u.partner1Id === tree.rootPersonId || u.partner2Id === tree.rootPersonId
       )!;
 
       const [c1Id, c2Id] = gen1Union.childrenIds;
-      const eldestUnion = Object.values(tree.unions).find(
-        (u) => u.partner1Id === c1Id || u.partner2Id === c1Id
-      )!;
-      const daughterUnion = Object.values(tree.unions).find(
-        (u) => u.partner1Id === c2Id || u.partner2Id === c2Id
-      )!;
+      const union1 = Object.values(tree.unions).find((u) => u.partner1Id === c1Id)!;
+      const union2 = Object.values(tree.unions).find((u) => u.partner1Id === c2Id)!;
 
-      const grandchildrenIds = [...eldestUnion.childrenIds, ...daughterUnion.childrenIds];
+      const grandchildrenIds = [...union1.childrenIds, ...union2.childrenIds];
       expect(grandchildrenIds.length).toBe(4);
 
       const grandchildren = grandchildrenIds.map((id) => tree.persons[id]);
+      const names = grandchildren.map((g) => g.name);
+
+      expect(names).toContain('Rin Palomar');
+      expect(names).toContain('Xyril Palomar');
+      expect(names).toContain('Darel Palomar');
+      expect(names).toContain('Minh Palomar');
+
       const boys = grandchildren.filter((g) => g.gender === 'male');
       const girls = grandchildren.filter((g) => g.gender === 'female');
 
-      expect(boys.length).toBe(2);
-      expect(girls.length).toBe(2);
+      expect(boys.length).toBe(1);
+      expect(girls.length).toBe(3);
     });
 
     it('renders cleanly in computePedigreeLayout without errors and stratifies into 3 generations', () => {
@@ -372,7 +370,8 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
       // Bounds are positive and valid
       expect(layout.bounds.width).toBeGreaterThan(0);
       expect(layout.bounds.height).toBeGreaterThan(0);
-      expect(layout.marriages.length).toBe(3);
+      expect(layout.marriages.length).toBe(1); // Emu + Jazmine
+      expect(layout.branches.length).toBe(3); // Gen 1, Haru, Kiyo
     });
   });
 });
