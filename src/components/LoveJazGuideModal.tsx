@@ -156,7 +156,7 @@ export const LoveJazGuideModal: React.FC<LoveJazGuideModalProps> = ({
             <div className="flex items-center gap-2 shrink-0">
               <div className="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-1.5">
                 <BookOpen className="w-3.5 h-3.5" />
-                <span>2007 — Forever</span>
+                <span>2026 — Forever</span>
               </div>
             </div>
           </div>
@@ -269,7 +269,7 @@ export const LoveJazGuideModal: React.FC<LoveJazGuideModalProps> = ({
         <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-t border-slate-800 bg-slate-900/95">
           <span className="text-xs text-slate-400 flex items-center gap-1.5">
             <Heart className="w-3.5 h-3.5 text-rose-400" />
-            <span>Dedicated with love for Emu &amp; Jazmine (2007) • Palomar Heritage</span>
+            <span>Dedicated with love for Emu &amp; Jazmine (2026) • Palomar Heritage</span>
           </span>
           <button
             type="button"

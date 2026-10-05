@@ -271,13 +271,13 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
       });
     });
 
-    it('satisfies Gen I requirements: M + J (Emu Palomar 2007 + Jazmine Palomar 2007)', () => {
+    it('satisfies Gen I requirements: M + J (Emu Palomar 2026 + Jazmine Palomar 2026)', () => {
       const tree = getSampleFamilyTree();
       const rootPerson = tree.persons[tree.rootPersonId];
       expect(rootPerson).toBeDefined();
       expect(rootPerson.name).toBe('Emu Palomar');
       expect(rootPerson.gender).toBe('male');
-      expect(Number(rootPerson.birthYear)).toBe(2007);
+      expect(Number(rootPerson.birthYear)).toBe(2026);
 
       // Find root's marriage
       const gen1Union = Object.values(tree.unions).find(
@@ -290,7 +290,7 @@ describe('Task 4: URL Sharing, Persistence & Sample Tree', () => {
       expect(mother).toBeDefined();
       expect(mother.name).toBe('Jazmine Palomar');
       expect(mother.gender).toBe('female');
-      expect(Number(mother.birthYear)).toBe(2007);
+      expect(Number(mother.birthYear)).toBe(2026);
 
       // Gen I has 5 children
       expect(gen1Union!.childrenIds.length).toBe(5);
